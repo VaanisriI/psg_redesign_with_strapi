@@ -1,0 +1,60 @@
+{
+  "kind": "collectionType",
+  "collectionName": "fundings",
+  "info": {
+    "singularName": "funding",
+    "pluralName": "fundings",
+    "displayName": "Funding",
+    "description": "Funding schemes for startups"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "quantum_of_assistance": {
+      "type": "string"
+    },
+    "rate_of_interest": {
+      "type": "string"
+    },
+    "repayment_period": {
+      "type": "string"
+    },
+    "apply_url": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "content": {
+      "type": "richtext"
+    },
+    "msme_incubatee_table": {
+      "type": "component",
+      "component": "funding.msme-incubator-scheme-table",
+      "repeatable": true,
+      "required": false
+    },
+    "seed_fund_support_table": {
+      "type": "component",
+      "component": "funding.seed-fund-table",
+      "repeatable": true
+    }
+  }
+}

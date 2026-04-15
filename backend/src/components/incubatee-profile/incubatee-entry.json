@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_incubatee_profile_incubatee_entries",
+  "info": {
+    "displayName": "Incubatee Entry"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "area_of_operations": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

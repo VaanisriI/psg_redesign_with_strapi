@@ -1,0 +1,25 @@
+{
+    "kind": "singleType",
+    "collectionName": "incubatee_profile",
+    "info": {
+        "singularName": "incubatee-profile",
+        "pluralName": "incubatee-profiles",
+        "displayName": "Incubatee Profile",
+        "description": "Present and graduated incubatees of PSG-STEP"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "attributes": {
+        "present_incubatees": {
+            "type": "component",
+            "repeatable": true,
+            "component": "incubatee-profile.incubatee-entry"
+        },
+        "graduated_incubatees": {
+            "type": "component",
+            "repeatable": true,
+            "component": "incubatee-profile.incubatee-entry"
+        }
+    }
+}
