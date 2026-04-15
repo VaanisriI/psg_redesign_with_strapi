@@ -1,0 +1,678 @@
+---
+// Header.astro
+---
+
+<!-- ░░ Top Marquee Bar ░░ -->
+<div class="bg-[#1a2b6e] overflow-hidden border-b border-white/10">
+  <div class="py-2 px-4 text-[12.5px]">
+    <div class="marquee-track whitespace-nowrap inline-flex items-center gap-14 font-semibold tracking-wide text-blue-100">
+      <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse inline-block"></span>Welcome to PSG Science &amp; Technology Entrepreneurs Programme</span>
+      <span class="text-white/30">|</span>
+      <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"></span>Apply for NIDHI PRAYAS 2024</span>
+      <span class="text-white/30">|</span>
+      <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse inline-block"></span>TIDE 2.0 Applications Open</span>
+      <span class="text-white/30">|</span>
+      <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse inline-block"></span>Welcome to PSG Science &amp; Technology Entrepreneurs Programme</span>
+      <span class="text-white/30">|</span>
+      <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block"></span>Apply for NIDHI PRAYAS 2024</span>
+      <span class="text-white/30">|</span>
+      <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse inline-block"></span>TIDE 2.0 Applications Open</span>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ Two-Bar Sticky Header ░░ -->
+<div class="sticky top-0 z-50">
+
+  <!-- ── Bar 1: Logo ── -->
+  <div class="bg-white border-b border-gray-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 lg:px-8 py-3 flex items-center justify-between">
+      <a href="/" class="group flex-1 min-w-0">
+        <img
+          src="/images/logo.jpg"
+          alt="PSG-STEP Logo"
+          class="w-full h-auto max-h-16 object-contain object-left group-hover:opacity-90 transition-opacity duration-200"
+        />
+      </a>
+      <!-- Mobile Hamburger (visible on mobile only) -->
+      <button id="mobile-toggle" class="lg:hidden flex items-center justify-center w-10 h-10 rounded-lg text-[#1a2b6e] hover:bg-blue-50 transition-colors" aria-label="Open menu">
+        <svg id="hamburger-icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+        </svg>
+        <svg id="close-icon" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Bar 2: Navigation ── -->
+  <div class="bg-[#1a2b6e] border-b border-white/10 hidden lg:block">
+    <div class="max-w-7xl mx-auto px-4 lg:px-8">
+      <nav class="flex items-center h-12 text-[13px] font-bold" id="desktop-nav">
+
+        <!-- Main nav items — centered -->
+        <div class="flex-1 flex items-center justify-center h-full">
+
+        <!-- Home -->
+        <a href="/" class="nav-link px-4 h-full flex items-center text-white/85 hover:text-white transition-colors relative">
+          Home
+          <span class="nav-underline absolute bottom-0 left-0 w-full h-[3px] bg-[#cc1818] rounded-t scale-x-0 transition-transform origin-center duration-200"></span>
+        </a>
+
+        <!-- About -->
+        <div class="relative h-full flex items-center" data-dropdown="about">
+          <button data-trigger class="nav-link px-4 h-full flex items-center gap-1.5 text-white/85 hover:text-white transition-colors relative">
+            About
+            <svg data-chevron class="w-3.5 h-3.5 text-white/40 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            <span class="nav-underline absolute bottom-0 left-0 w-full h-[3px] bg-[#cc1818] rounded-t scale-x-0 transition-transform origin-center duration-200"></span>
+          </button>
+          <div data-panel class="dropdown-panel absolute top-full left-0 w-60 pt-1 opacity-0 invisible translate-y-1 transition-all duration-200 pointer-events-none">
+            <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+              <a href="#" class="dd-item flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                About PSG Tech <span class="arrow text-[#1a2b6e] opacity-0 -translate-x-1 transition-all font-bold text-base leading-none">›</span>
+              </a>
+              <div class="relative" data-dropdown="about-step">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  About PSG-STEP
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-60 opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Vision</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Mission</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Team PSG-STEP</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors leading-snug">
+                      Video of Incubation<br><span class="text-xs text-slate-400 font-medium">Facilities @ PSG-STEP</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Incubation Facility -->
+        <div class="relative h-full flex items-center" data-dropdown="facility">
+          <button data-trigger class="nav-link px-4 h-full flex items-center gap-1.5 text-white/85 hover:text-white transition-colors relative">
+            Incubation Facility
+            <svg data-chevron class="w-3.5 h-3.5 text-white/40 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            <span class="nav-underline absolute bottom-0 left-0 w-full h-[3px] bg-[#cc1818] rounded-t scale-x-0 transition-transform origin-center duration-200"></span>
+          </button>
+          <div data-panel class="dropdown-panel absolute top-full left-0 w-[320px] pt-1 opacity-0 invisible translate-y-1 transition-all duration-200 pointer-events-none">
+            <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+              <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">ICT</a>
+              <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Electronics</a>
+              <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">BIRAC BioNEST Bioincubation Centre</a>
+              <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors leading-snug">
+                DST Nanotechnology – Research<br><span class="text-xs text-slate-400 font-medium">Innovation and Incubation Centre</span>
+              </a>
+              <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Mechanical</a>
+              <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors leading-snug">
+                DST NIDHI-Centre of Excellence<br><span class="text-xs text-slate-400 font-medium">in Advanced Technologies</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Programs -->
+        <div class="relative h-full flex items-center" data-dropdown="programs">
+          <button data-trigger class="nav-link px-4 h-full flex items-center gap-1.5 text-white/85 hover:text-white transition-colors relative">
+            Programs
+            <svg data-chevron class="w-3.5 h-3.5 text-white/40 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            <span class="nav-underline absolute bottom-0 left-0 w-full h-[3px] bg-[#cc1818] rounded-t scale-x-0 transition-transform origin-center duration-200"></span>
+          </button>
+          <div data-panel class="dropdown-panel absolute top-full left-0 w-[300px] pt-1 opacity-0 invisible translate-y-1 transition-all duration-200 pointer-events-none">
+            <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+              <a href="#" class="dd-item flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                DST-NIDHI Centre of Excellence <span class="arrow text-[#1a2b6e] opacity-0 -translate-x-1 transition-all font-bold text-base">›</span>
+              </a>
+              <div class="relative" data-dropdown="prayas">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  DST NIDHI – PRAYAS
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-[270px] opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Objectives</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">INNOSPHERE – DST PRAYAS Centre</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Eligibility Criteria</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Beneficiaries</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">NIDHI – PRAYAS Application</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Media</a>
+                  </div>
+                </div>
+              </div>
+              <div class="relative" data-dropdown="eir">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  DST NIDHI – EIR
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-60 opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Objectives</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Eligibility Criteria</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Beneficiaries</a>
+                  </div>
+                </div>
+              </div>
+              <div class="relative" data-dropdown="tide">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  MeitY TIDE 2.0
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-[270px] opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Beneficiaries</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Success Stories</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Scale-up Investment Grant</a>
+                  </div>
+                </div>
+              </div>
+              <div class="relative" data-dropdown="sparsh">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  BIRAC – SPARSH
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-60 opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Objectives</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Eligibility Criteria</a>
+                  </div>
+                </div>
+              </div>
+              <a href="#" class="dd-item flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                BIRAC BioNEST Initiatives <span class="arrow text-[#1a2b6e] opacity-0 -translate-x-1 transition-all font-bold text-base">›</span>
+              </a>
+              <div class="relative" data-dropdown="idex">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  iDEX Partner Incubator
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-60 opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">About iDEX</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">iDEX Winners</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">iDEX Challenges</a>
+                  </div>
+                </div>
+              </div>
+              <a href="#" class="dd-item flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                StartupTN Initiatives <span class="arrow text-[#1a2b6e] opacity-0 -translate-x-1 transition-all font-bold text-base">›</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Startups -->
+        <div class="relative h-full flex items-center" data-dropdown="startups">
+          <button data-trigger class="nav-link px-4 h-full flex items-center gap-1.5 text-white/85 hover:text-white transition-colors relative">
+            Startups
+            <svg data-chevron class="w-3.5 h-3.5 text-white/40 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            <span class="nav-underline absolute bottom-0 left-0 w-full h-[3px] bg-[#cc1818] rounded-t scale-x-0 transition-transform origin-center duration-200"></span>
+          </button>
+          <div data-panel class="dropdown-panel absolute top-full left-0 w-56 pt-1 opacity-0 invisible translate-y-1 transition-all duration-200 pointer-events-none">
+            <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+              <div class="relative" data-dropdown="incubatee">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  Incubatee Profile
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-56 opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Present Incubatees</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Graduated Incubatees</a>
+                  </div>
+                </div>
+              </div>
+              <div class="relative" data-dropdown="funding">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  Funding
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-80 opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Seed Fund Support Scheme</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Seed Fund Support Scheme – TDB / NSTEDB</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">MSME Incubator Scheme</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">EDII – Innovation Voucher Program (IVP)</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">DST NIDHI – PRAYAS</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">MeitY TIDE 2.0</a>
+                  </div>
+                </div>
+              </div>
+              <a href="#" class="dd-item flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                Catalysts <span class="arrow text-[#1a2b6e] opacity-0 -translate-x-1 transition-all font-bold text-base leading-none">›</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ecosystem -->
+        <div class="relative h-full flex items-center" data-dropdown="ecosystem">
+          <button data-trigger class="nav-link px-4 h-full flex items-center gap-1.5 text-white/85 hover:text-white transition-colors relative">
+            Ecosystem
+            <svg data-chevron class="w-3.5 h-3.5 text-white/40 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            <span class="nav-underline absolute bottom-0 left-0 w-full h-[3px] bg-[#cc1818] rounded-t scale-x-0 transition-transform origin-center duration-200"></span>
+          </button>
+          <div data-panel class="dropdown-panel absolute top-full left-0 w-72 pt-1 opacity-0 invisible translate-y-1 transition-all duration-200 pointer-events-none">
+            <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+              <div class="relative" data-dropdown="capacity-dev">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  Capacity Development Programmes
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 shrink-0 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-80 opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Faculty Development Programme</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Entrepreneurship Awareness Camp</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors leading-snug">Technology based Entrepreneurship<br><span class="text-xs text-slate-400 font-medium">Development Programme</span></a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Seminar / Workshop</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors leading-snug">Leadership Course for<br><span class="text-xs text-slate-400 font-medium">Business Incubators</span></a>
+                  </div>
+                </div>
+              </div>
+              <div class="relative" data-dropdown="apin">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  Asia Pacific Incubation Network
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 shrink-0 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-80 opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors leading-snug">International Training Programme on<br><span class="text-xs text-slate-400 font-medium">"Promoting Innovation and Entrepreneurship through Incubation"</span></a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Incubator Management Training</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Intel DST Asia Pacific Challenge</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Media -->
+        <div class="relative h-full flex items-center" data-dropdown="media">
+          <button data-trigger class="nav-link px-4 h-full flex items-center gap-1.5 text-white/85 hover:text-white transition-colors relative">
+            Media
+            <svg data-chevron class="w-3.5 h-3.5 text-white/40 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            <span class="nav-underline absolute bottom-0 left-0 w-full h-[3px] bg-[#cc1818] rounded-t scale-x-0 transition-transform origin-center duration-200"></span>
+          </button>
+          <div data-panel class="dropdown-panel absolute top-full left-0 w-56 pt-1 opacity-0 invisible translate-y-1 transition-all duration-200 pointer-events-none">
+            <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+              <a href="#" class="dd-item flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                Achievements <span class="arrow text-[#1a2b6e] opacity-0 -translate-x-1 transition-all font-bold text-base leading-none">›</span>
+              </a>
+              <a href="#" class="dd-item flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                News &amp; Events <span class="arrow text-[#1a2b6e] opacity-0 -translate-x-1 transition-all font-bold text-base leading-none">›</span>
+              </a>
+              <div class="relative" data-dropdown="press">
+                <button data-trigger class="dd-item w-full flex items-center justify-between px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">
+                  Press Coverage
+                  <svg data-chevron class="w-3.5 h-3.5 text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <div data-panel class="dropdown-panel absolute top-0 left-full ml-1 w-44 opacity-0 invisible translate-x-[-4px] transition-all duration-200 pointer-events-none">
+                  <div class="bg-white border border-slate-100 shadow-2xl shadow-slate-200/60 rounded-xl py-2">
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2019</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2018</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2017</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2016</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2015</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2014</a>
+                    <a href="#" class="dd-item block px-5 py-2.5 text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Upto 2013</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        </div><!-- end centered group -->
+
+        <!-- Contact CTA — pinned right -->
+        <a href="/contact" class="shrink-0 px-5 py-2 bg-[#cc1818] text-white font-bold text-[12.5px] uppercase tracking-wider rounded hover:bg-red-700 transition-colors duration-200 whitespace-nowrap">
+          Contact
+        </a>
+
+      </nav>
+    </div>
+  </div>
+
+</div>
+
+<!-- ░░ Mobile Menu Drawer ░░ -->
+<div id="mobile-menu" class="fixed inset-0 z-[60] hidden" aria-hidden="true">
+  <!-- Overlay -->
+  <div id="mobile-overlay" class="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+  <!-- Panel -->
+  <div id="mobile-panel" class="absolute top-0 right-0 h-full w-[300px] max-w-[85vw] bg-white shadow-2xl flex flex-col translate-x-full transition-transform duration-300">
+    <!-- Panel Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-[#1a2b6e] shrink-0">
+      <img src="/images/logo.jpg" alt="PSG-STEP Logo" class="h-10 w-auto object-contain brightness-0 invert" />
+      <button id="mobile-close" class="w-9 h-9 flex items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <!-- Panel Nav -->
+    <nav class="flex-1 overflow-y-auto py-3 px-2 text-[14px] font-semibold text-slate-700">
+      <a href="/" class="flex items-center px-4 py-3 rounded-lg hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Home</a>
+
+      <!-- Mobile Accordion: About -->
+      <div class="mobile-accordion">
+        <button class="mobile-acc-trigger flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors">
+          About
+          <svg class="acc-chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="mobile-acc-panel hidden pl-4 border-l-2 border-slate-100 ml-4 my-1 space-y-0.5">
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">About PSG Tech</a>
+          <div class="mobile-accordion">
+            <button class="mobile-acc-trigger flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors text-slate-600">
+              About PSG-STEP
+              <svg class="acc-chevron w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="mobile-acc-panel hidden pl-3 border-l-2 border-slate-100 ml-3 my-1 space-y-0.5">
+              <a href="#" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors text-[13px]">Vision</a>
+              <a href="#" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors text-[13px]">Mission</a>
+              <a href="#" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors text-[13px]">Team PSG-STEP</a>
+              <a href="#" class="block px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors text-[13px]">Video of Incubation Facilities</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Accordion: Incubation Facility -->
+      <div class="mobile-accordion">
+        <button class="mobile-acc-trigger flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors">
+          Incubation Facility
+          <svg class="acc-chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="mobile-acc-panel hidden pl-4 border-l-2 border-slate-100 ml-4 my-1 space-y-0.5">
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">ICT</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Electronics</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">BIRAC BioNEST Bioincubation Centre</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">DST Nanotechnology Centre</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Mechanical</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">DST NIDHI-CoE in Advanced Tech</a>
+        </div>
+      </div>
+
+      <!-- Mobile Accordion: Programs -->
+      <div class="mobile-accordion">
+        <button class="mobile-acc-trigger flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors">
+          Programs
+          <svg class="acc-chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="mobile-acc-panel hidden pl-4 border-l-2 border-slate-100 ml-4 my-1 space-y-0.5">
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">DST-NIDHI Centre of Excellence</a>
+          <div class="mobile-accordion">
+            <button class="mobile-acc-trigger flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors text-slate-600">
+              DST NIDHI – PRAYAS <svg class="acc-chevron w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="mobile-acc-panel hidden pl-3 border-l-2 border-slate-100 ml-3 my-1 space-y-0.5">
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Objectives</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">INNOSPHERE – DST PRAYAS Centre</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Eligibility Criteria</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Beneficiaries</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">NIDHI – PRAYAS Application</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Media</a>
+            </div>
+          </div>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">DST NIDHI – EIR</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">MeitY TIDE 2.0</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">BIRAC – SPARSH</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">BIRAC BioNEST Initiatives</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">iDEX Partner Incubator</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">StartupTN Initiatives</a>
+        </div>
+      </div>
+
+      <!-- Mobile Accordion: Startups -->
+      <div class="mobile-accordion">
+        <button class="mobile-acc-trigger flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors">
+          Startups
+          <svg class="acc-chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="mobile-acc-panel hidden pl-4 border-l-2 border-slate-100 ml-4 my-1 space-y-0.5">
+          <div class="mobile-accordion">
+            <button class="mobile-acc-trigger flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors text-slate-600">
+              Incubatee Profile <svg class="acc-chevron w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="mobile-acc-panel hidden pl-3 border-l-2 border-slate-100 ml-3 my-1 space-y-0.5">
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Present Incubatees</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Graduated Incubatees</a>
+            </div>
+          </div>
+          <div class="mobile-accordion">
+            <button class="mobile-acc-trigger flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors text-slate-600">
+              Funding <svg class="acc-chevron w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="mobile-acc-panel hidden pl-3 border-l-2 border-slate-100 ml-3 my-1 space-y-0.5">
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Seed Fund Support Scheme</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Seed Fund Support Scheme – TDB / NSTEDB</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">MSME Incubator Scheme</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">EDII – Innovation Voucher Program (IVP)</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">DST NIDHI – PRAYAS</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">MeitY TIDE 2.0</a>
+            </div>
+          </div>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Catalysts</a>
+        </div>
+      </div>
+
+      <!-- Mobile Accordion: Ecosystem -->
+      <div class="mobile-accordion">
+        <button class="mobile-acc-trigger flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors">
+          Ecosystem
+          <svg class="acc-chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="mobile-acc-panel hidden pl-4 border-l-2 border-slate-100 ml-4 my-1 space-y-0.5">
+          <div class="mobile-accordion">
+            <button class="mobile-acc-trigger flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors text-slate-600">
+              Capacity Development Programmes <svg class="acc-chevron w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="mobile-acc-panel hidden pl-3 border-l-2 border-slate-100 ml-3 my-1 space-y-0.5">
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Faculty Development Programme</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Entrepreneurship Awareness Camp</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Technology based EDP</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Seminar / Workshop</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Leadership Course for Business Incubators</a>
+            </div>
+          </div>
+          <div class="mobile-accordion">
+            <button class="mobile-acc-trigger flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors text-slate-600">
+              Asia Pacific Incubation Network <svg class="acc-chevron w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="mobile-acc-panel hidden pl-3 border-l-2 border-slate-100 ml-3 my-1 space-y-0.5">
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">International Training Programme on Promoting Innovation</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Incubator Management Training</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Intel DST Asia Pacific Challenge</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Accordion: Media -->
+      <div class="mobile-accordion">
+        <button class="mobile-acc-trigger flex items-center justify-between w-full px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors">
+          Media
+          <svg class="acc-chevron w-4 h-4 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="mobile-acc-panel hidden pl-4 border-l-2 border-slate-100 ml-4 my-1 space-y-0.5">
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Achievements</a>
+          <a href="#" class="block px-3 py-2.5 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">News &amp; Events</a>
+          <div class="mobile-accordion">
+            <button class="mobile-acc-trigger flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-slate-50 transition-colors text-slate-600">
+              Press Coverage <svg class="acc-chevron w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="mobile-acc-panel hidden pl-3 border-l-2 border-slate-100 ml-3 my-1 space-y-0.5">
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2019</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2018</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2017</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2016</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2015</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">2014</a>
+              <a href="#" class="block px-3 py-2 text-[13px] rounded-lg text-slate-600 hover:bg-slate-50 hover:text-[#1a2b6e] transition-colors">Upto 2013</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-2 pt-3 mt-2 border-t border-slate-100">
+        <a href="/contact" class="block w-full text-center px-5 py-3 bg-[#cc1818] text-white font-bold text-[13px] uppercase tracking-wider rounded-lg hover:bg-red-700 transition-colors">
+          Contact
+        </a>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- ░░ Styles ░░ -->
+<style>
+  @keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .marquee-track {
+    animation: marquee 36s linear infinite;
+  }
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+  /* Show state for dropdown panels */
+  .dropdown-panel.is-open {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateY(0) translateX(0) !important;
+  }
+
+  /* Underline active state */
+  .nav-link:hover .nav-underline,
+  .nav-link.active .nav-underline {
+    transform: scaleX(1);
+  }
+
+  /* Arrow on hover for dd-item */
+  .dd-item:hover .arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+</style>
+
+<!-- ░░ Scripts ░░ -->
+<script>
+  // ── Desktop dropdown logic ──────────────────────────────────────────────
+  const timers: Map<Element, ReturnType<typeof setTimeout>> = new Map();
+
+  function openPanel(container: Element) {
+    const panel = container.querySelector<HTMLElement>('[data-panel]');
+    const chevron = container.querySelector<SVGElement>('[data-trigger] [data-chevron]');
+    if (!panel) return;
+
+    const isRightFlyout = panel.classList.contains('left-full') ||
+      getComputedStyle(panel).getPropertyValue('left') === '100%';
+
+    if (isRightFlyout) {
+      const rect = container.getBoundingClientRect();
+      const panelWidth = panel.offsetWidth || 260;
+      if (rect.right + panelWidth > window.innerWidth - 8) {
+        panel.classList.remove('left-full', 'ml-1', 'translate-x-[-4px]');
+        panel.classList.add('right-full', 'mr-1');
+      }
+    }
+
+    panel.classList.add('is-open');
+    if (chevron) chevron.style.transform = 'rotate(180deg)';
+  }
+
+  function closePanel(container: Element) {
+    const panel = container.querySelector<HTMLElement>('[data-panel]');
+    const chevron = container.querySelector<SVGElement>('[data-trigger] [data-chevron]');
+    if (!panel) return;
+    panel.classList.remove('is-open');
+    if (chevron) chevron.style.transform = '';
+  }
+
+  function bindDropdown(container: Element) {
+    container.addEventListener('mouseenter', () => {
+      const existing = timers.get(container);
+      if (existing) clearTimeout(existing);
+      openPanel(container);
+    });
+
+    container.addEventListener('mouseleave', () => {
+      const t = setTimeout(() => closePanel(container), 120);
+      timers.set(container, t);
+    });
+  }
+
+  document.querySelectorAll('[data-dropdown]').forEach(bindDropdown);
+
+  // ── Mobile menu logic ──────────────────────────────────────────────────
+  const mobileMenu    = document.getElementById('mobile-menu')!;
+  const mobilePanel   = document.getElementById('mobile-panel')!;
+  const mobileOverlay = document.getElementById('mobile-overlay')!;
+  const mobileToggle  = document.getElementById('mobile-toggle')!;
+  const mobileClose   = document.getElementById('mobile-close')!;
+  const hamburgerIcon = document.getElementById('hamburger-icon')!;
+  const closeIcon     = document.getElementById('close-icon')!;
+
+  function openMobileMenu() {
+    mobileMenu.classList.remove('hidden');
+    mobileMenu.removeAttribute('aria-hidden');
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+      mobileOverlay.classList.remove('opacity-0');
+      mobileOverlay.classList.add('opacity-100');
+      mobileOverlay.style.pointerEvents = 'auto';
+      mobilePanel.classList.remove('translate-x-full');
+      mobilePanel.classList.add('translate-x-0');
+    });
+    hamburgerIcon.classList.add('hidden');
+    closeIcon.classList.remove('hidden');
+  }
+
+  function closeMobileMenu() {
+    mobileOverlay.classList.remove('opacity-100');
+    mobileOverlay.classList.add('opacity-0');
+    mobileOverlay.style.pointerEvents = 'none';
+    mobilePanel.classList.remove('translate-x-0');
+    mobilePanel.classList.add('translate-x-full');
+    setTimeout(() => {
+      mobileMenu.classList.add('hidden');
+      mobileMenu.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }, 300);
+    hamburgerIcon.classList.remove('hidden');
+    closeIcon.classList.add('hidden');
+  }
+
+  mobileToggle.addEventListener('click', openMobileMenu);
+  mobileClose.addEventListener('click', closeMobileMenu);
+  mobileOverlay.addEventListener('click', closeMobileMenu);
+
+  // ── Mobile accordion logic ─────────────────────────────────────────────
+  document.querySelectorAll('.mobile-accordion').forEach(accordion => {
+    const trigger = accordion.querySelector<HTMLElement>('.mobile-acc-trigger');
+    const panel   = accordion.querySelector<HTMLElement>('.mobile-acc-panel');
+    const chevron = trigger?.querySelector<SVGElement>('.acc-chevron');
+    if (!trigger || !panel) return;
+
+    trigger.addEventListener('click', () => {
+      const isOpen = !panel.classList.contains('hidden');
+      if (isOpen) {
+        panel.classList.add('hidden');
+        if (chevron) chevron.style.transform = '';
+      } else {
+        panel.classList.remove('hidden');
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+      }
+    });
+  });
+
+  // ── Close desktop dropdowns on outside click ───────────────────────────
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('[data-dropdown]').forEach(container => {
+      if (!container.contains(e.target as Node)) closePanel(container);
+    });
+  });
+</script>
