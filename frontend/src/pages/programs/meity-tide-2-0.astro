@@ -1,0 +1,16 @@
+---
+import ProgramLayout from '../../components/ProgramLayout.astro';
+
+const res = await fetch('http://127.0.0.1:1337/api/programs/ey5l0t4z6kjwantd4gqpqhpe?populate=image');
+const json = await res.json();
+const program = json.data;
+
+const accent = {
+  grad: 'linear-gradient(135deg,#0f766e 0%,#2563eb 100%)',
+  gradFrom: 'from-teal-700',
+  gradTo: 'to-blue-600',
+};
+
+const heroImage = 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2400&auto=format&fit=crop';
+---
+<ProgramLayout program={program} accent={accent} heroImage={heroImage} />

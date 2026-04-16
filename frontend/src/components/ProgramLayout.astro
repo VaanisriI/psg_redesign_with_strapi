@@ -1,0 +1,593 @@
+---
+// ProgramLayout.astro — shared layout for all individual program detail pages
+import Header from './Header.astro';
+import '../styles/global.css';
+
+interface Props {
+  program: any;
+  accent: {
+    grad: string;     // CSS gradient string
+    gradFrom: string; // tailwind from-* class
+    gradTo: string;   // tailwind to-* class
+  };
+  heroImage: string;
+}
+
+const { program, accent, heroImage } = Astro.props;
+const STRAPI_BASE = 'http://127.0.0.1:1337';
+
+// Resolve Strapi image — handles both array [] and single object {}
+const rawImg = program?.image;
+const strapiImg = Array.isArray(rawImg)
+  ? (rawImg.length > 0 ? rawImg[0] : null)
+  : (rawImg && typeof rawImg === 'object' && rawImg.url ? rawImg : null);
+
+// Build full absolute URL pointing at Strapi server
+const programImageUrl = strapiImg?.url ? `${STRAPI_BASE}${strapiImg.url}` : null;
+
+// Derive a readable label from the filename (strip extension & hyphens)
+const imgFileName = strapiImg?.name ?? '';
+const imgLabel = imgFileName
+  ? imgFileName.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ')
+  : 'Program Photo';
+
+// ── Description parser ─────────────────────────────────────────────────────
+const parseDescription = (raw: string): string => {
+  if (!raw) return '<p class="empty-desc">No detailed information available.</p>';
+
+  const lines = raw.split('\n');
+  let html = '';
+  let firstTextBlock = true;
+
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t) continue;
+
+    // **Bold** heading
+    if (/^\*\*(.+?)\*\*$/.test(t)) {
+      const label = t.replace(/^\*\*/, '').replace(/\*\*$/, '');
+      html += `<div class="sec-head"><div class="sec-bar"></div><h3 class="sec-title">${label}</h3></div>`;
+      firstTextBlock = false;
+      continue;
+    }
+
+    // ALL-CAPS standalone heading
+    if (
+      t === t.toUpperCase() &&
+      t.length > 3 && t.length < 90 &&
+      /^[A-Z]/.test(t) &&
+      !/[.!?,]$/.test(t) &&
+      !t.startsWith('http') &&
+      !/^\d+\./.test(t)
+    ) {
+      html += `<div class="sec-head"><div class="sec-bar"></div><h3 class="sec-title">${t}</h3></div>`;
+      firstTextBlock = false;
+      continue;
+    }
+
+    // Numbered list item
+    if (/^\d+\./.test(t)) {
+      const num = t.match(/^(\d+)/)?.[1] ?? '';
+      const text = linkify(t.replace(/^\d+\.\s*/, ''));
+      html += `<div class="list-row"><span class="list-num">${num}</span><p class="list-txt">${text}</p></div>`;
+      firstTextBlock = false;
+      continue;
+    }
+
+    // First line with colon = intro block
+    if (firstTextBlock && t.includes(':') && t.length < 110 && !t.startsWith('http')) {
+      const [label, ...rest] = t.split(':');
+      const body = rest.join(':').trim();
+      html += `<div class="intro-blk"><p class="intro-lbl">${label.trim()}</p>${body ? `<p class="intro-val">${body}</p>` : ''}</div>`;
+      firstTextBlock = false;
+      continue;
+    }
+
+    html += `<p class="body-p">${linkify(t)}</p>`;
+    firstTextBlock = false;
+  }
+  return html;
+};
+
+const linkify = (text: string) => {
+  // 1. Handle Markdown style [Label](URL)
+  let processed = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+    if (href === 'link' || !href.startsWith('http')) return `<span class="link-txt">${label}</span>`;
+    return createLinkHtml(href, label);
+  });
+
+  // 2. Handle raw http/https links that aren't already wrapped in Markdown
+  // This logic is simple and assumes the raw URL is the full line or separated by space
+  if (!text.includes('[') && text.trim().startsWith('http')) {
+    const url = text.trim();
+    processed = createLinkHtml(url, getAutoLabel(url));
+  }
+
+  return processed;
+};
+
+const getAutoLabel = (url: string) => {
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'Watch Video Presentation';
+  if (url.includes('drive.google.com')) return 'View Program Brochure / document';
+  return 'External Resource';
+};
+
+const createLinkHtml = (url: string, label: string) => {
+  const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
+  const isDrive = url.includes('drive.google.com');
+
+  if (isYoutube) {
+    return `<a href="${url}" target="_blank" rel="noopener" class="res-btn yt-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+      <span>${label}</span>
+    </a>`;
+  }
+
+  if (isDrive) {
+    return `<a href="${url}" target="_blank" rel="noopener" class="res-btn drive-btn">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <span>${label}</span>
+    </a>`;
+  }
+
+  return `<a href="${url}" target="_blank" rel="noopener" class="ext-link">${label}</a>`;
+};
+
+const desc = parseDescription(program?.description ?? '');
+const title = program?.title ?? 'Program';
+const tagline = program?.tagline ?? '';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={program?.description?.slice(0, 155) ?? title} />
+    <title>PSG-STEP | {title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  </head>
+
+  <body class="pg-body">
+    <Header />
+
+    <main>
+
+      <!-- ░░ HERO ░░ -->
+      <section class="hero-section">
+        <img src={heroImage} alt={title} class="hero-bg" />
+        <div class="hero-overlay" style={`background: ${accent.grad}; opacity:.82;`}></div>
+        <div class="hero-vignette"></div>
+        <div class="hero-dots"></div>
+        <div class="hero-blob b1"></div>
+        <div class="hero-blob b2"></div>
+
+        <div class="hero-inner">
+          {tagline && (
+            <div class="hero-pill">
+              <span class="pill-dot"></span>
+              {tagline}
+            </div>
+          )}
+          <h1 class="hero-title">{title}</h1>
+          <div class="hero-rule"></div>
+        </div>
+      </section>
+
+
+      <!-- ░░ CONTENT ░░ -->
+      <div class="content-wrap">
+        <div class="content-grid">
+
+          <!-- Description card -->
+          <article class="desc-card">
+            <div class="desc-topbar" style={`background:${accent.grad};`}></div>
+            <div class="desc-inner">
+              <div class="desc-header">
+                <div class="desc-icon" style={`background:${accent.grad};`}>
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="desc-eyebrow">Program Details</p>
+                  <h2 class="desc-heading">Overview</h2>
+                </div>
+              </div>
+              <div class="desc-body" set:html={desc} />
+            </div>
+          </article>
+
+          <!-- Sidebar -->
+          <aside class="sidebar">
+
+            <!-- Program image from Strapi -->
+            {programImageUrl && (
+              <div class="img-card">
+                <p class="img-label">
+                  <span class="img-dot" style={`background:${accent.grad};`}></span>
+                  {imgLabel}
+                </p>
+                <div class="img-frame">
+                  <img
+                    src={programImageUrl}
+                    alt={strapiImg?.alternativeText ?? title}
+                    class="prog-img"
+                    loading="lazy"
+                    onerror="this.closest('.img-card').style.display='none'"
+                  />
+                  <div class="img-sheen" style={`background:${accent.grad}; opacity:.06;`}></div>
+                </div>
+              </div>
+            )}
+
+            <!-- Funding card -->
+            {program?.funding && (
+              <div class="fund-card" style={`background:${accent.grad};`}>
+                <div class="fund-blob f1"></div>
+                <div class="fund-blob f2"></div>
+                <div class="fund-inner">
+                  <div class="fund-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+                  <p class="fund-eyebrow">Funding Support</p>
+                  <p class="fund-amount">{program.funding}</p>
+                </div>
+              </div>
+            )}
+
+            <!-- Apply CTA -->
+            {program?.applyUrl && program.applyUrl !== 'null' && program.applyUrl.trim() !== '' && (
+              <div class="apply-card">
+                <div class="apply-icon" style={`background:${accent.grad};`}>
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                  </svg>
+                </div>
+                <h3 class="apply-title">Ready to Apply?</h3>
+                <p class="apply-sub">Take the next step in your innovation journey today.</p>
+                <a href={program.applyUrl} target="_blank" rel="noopener noreferrer"
+                   class="apply-btn" style={`background:${accent.grad};`} id="apply-now-btn">
+                  <span>Apply Now</span>
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                  </svg>
+                </a>
+              </div>
+            )}
+
+            <!-- Back link -->
+            <a href="/" class="back-link" id="back-home-btn">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
+              Back to Home
+            </a>
+
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <style>
+      /* ─── Page shell ──────────────────────────────────────── */
+      .pg-body {
+        background: #f0f2f8;
+        color: #1e293b;
+        font-family: 'Outfit', sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      /* ─── Animations ──────────────────────────────────────── */
+      @keyframes slowZoom {
+        from { transform: scale(1.05); }
+        to   { transform: scale(1.14); }
+      }
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(22px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes blobDrift {
+        0%,100% { transform: translate(0,0) scale(1); }
+        50%      { transform: translate(18px,-18px) scale(1.07); }
+      }
+      @keyframes pulseDot {
+        0%,100% { opacity:1; } 50% { opacity:.35; }
+      }
+
+      /* ─── Hero ────────────────────────────────────────────── */
+      .hero-section {
+        position: relative;
+        min-height: 68vh;
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        align-items: flex-end;
+      }
+      .hero-bg {
+        position: absolute; inset: 0;
+        width: 100%; height: 100%;
+        object-fit: cover; object-position: center;
+        animation: slowZoom 14s ease-out forwards;
+      }
+      .hero-overlay { position: absolute; inset: 0; }
+      .hero-vignette {
+        position: absolute; inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 55%);
+      }
+      .hero-dots {
+        position: absolute; inset: 0; opacity: .055;
+        background-image: radial-gradient(#fff 1.5px, transparent 1.5px);
+        background-size: 26px 26px;
+      }
+      .hero-blob {
+        position: absolute; border-radius: 9999px;
+        filter: blur(72px); opacity: .22; pointer-events: none;
+      }
+      .b1 {
+        width:400px; height:400px; background:#fff;
+        top:-80px; right:-60px;
+        animation: blobDrift 9s ease-in-out infinite;
+      }
+      .b2 {
+        width:260px; height:260px; background:#fff;
+        bottom:60px; left:-40px;
+        animation: blobDrift 9s ease-in-out infinite 3s;
+      }
+
+      .hero-inner {
+        position: relative; z-index: 10;
+        max-width: 1152px; width: 100%; margin: 0 auto;
+        padding: 0 48px 72px;
+        display: flex; flex-direction: column;
+        animation: fadeUp .8s .1s ease both;
+      }
+      @media (max-width:768px) { .hero-inner { padding: 0 20px 56px; } }
+
+      .hero-pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 18px;
+        border: 1px solid rgba(255,255,255,.35);
+        border-radius: 9999px;
+        background: rgba(255,255,255,.13);
+        backdrop-filter: blur(12px);
+        color: #fff;
+        font-size: .72rem; font-weight: 800; letter-spacing: .18em;
+        text-transform: uppercase;
+        align-self: flex-start; margin-bottom: 18px;
+      }
+      .pill-dot {
+        width:7px; height:7px; border-radius:9999px;
+        background:#fff; animation: pulseDot 1.8s infinite;
+      }
+
+      .hero-title {
+        font-size: clamp(1.9rem, 4.8vw, 3.5rem);
+        font-weight: 900; color: #fff;
+        line-height: 1.08; letter-spacing: -.02em;
+        text-shadow: 0 4px 24px rgba(0,0,0,.3);
+        max-width: 680px;
+      }
+      .hero-rule {
+        width: 72px; height: 4px; border-radius: 9999px;
+        background: rgba(255,255,255,.5); margin-top: 22px;
+      }
+
+
+      /* ─── Content ─────────────────────────────────────────── */
+      .content-wrap {
+        max-width: 1152px; margin: 0 auto;
+        padding: 44px 48px 72px;
+        animation: fadeUp 1s .4s ease both;
+      }
+      @media (max-width:768px) { .content-wrap { padding: 32px 16px 48px; } }
+
+      .content-grid {
+        display: grid; grid-template-columns: 1fr;
+        gap: 28px; align-items: start;
+      }
+      @media (min-width:1024px) {
+        .content-grid { grid-template-columns: 1fr 336px; }
+      }
+
+      /* ─── Description card ────────────────────────────────── */
+      .desc-card {
+        background: #fff; border-radius: 28px;
+        box-shadow: 0 8px 40px rgba(0,0,0,.07);
+        border: 1px solid #e8eef8; overflow: hidden;
+      }
+      .desc-topbar { height: 5px; width: 100%; }
+      .desc-inner { padding: 36px 44px; }
+      @media (max-width:640px) { .desc-inner { padding: 22px 18px; } }
+
+      .desc-header {
+        display: flex; align-items: center; gap: 14px;
+        margin-bottom: 28px; padding-bottom: 18px;
+        border-bottom: 1px dashed #e2e8f0;
+      }
+      .desc-icon {
+        width: 44px; height: 44px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; box-shadow: 0 4px 16px rgba(0,0,0,.15);
+      }
+      .desc-eyebrow {
+        font-size: .66rem; font-weight: 800; color: #94a3b8;
+        letter-spacing: .2em; text-transform: uppercase; margin-bottom: 2px;
+      }
+      .desc-heading { font-size: 1.2rem; font-weight: 900; color: #0f172a; }
+
+      /* ─── Parsed description nodes ──────────────────────────── */
+      :global(.sec-head) {
+        display: flex; align-items: center; gap: 12px;
+        margin-top: 32px; margin-bottom: 12px;
+      }
+      :global(.sec-bar) {
+        width: 4px; height: 22px; border-radius: 9999px;
+        background: linear-gradient(to bottom,#1a2b6e,#cc1818);
+        flex-shrink: 0;
+      }
+      :global(.sec-title) {
+        font-size: 1.02rem; font-weight: 800; color: #1e293b; letter-spacing: -.01em;
+      }
+      :global(.list-row) {
+        display: flex; align-items: flex-start; gap: 12px;
+        padding: 10px 12px; border-radius: 12px; transition: background .15s;
+      }
+      :global(.list-row:hover) { background: #f8faff; }
+      :global(.list-num) {
+        width: 26px; height: 26px; border-radius: 9999px;
+        background: #1a2b6e14; color: #1a2b6e;
+        font-size: .72rem; font-weight: 900;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; margin-top: 2px;
+      }
+      :global(.list-txt) {
+        font-size: .97rem; color: #475569; line-height: 1.75; font-weight: 400;
+      }
+      :global(.intro-blk) {
+        margin-bottom: 22px; padding-bottom: 18px;
+        border-bottom: 1px dashed #e2e8f0;
+      }
+      :global(.intro-lbl) {
+        font-size: .7rem; font-weight: 800; color: #cc1818;
+        text-transform: uppercase; letter-spacing: .18em; margin-bottom: 4px;
+      }
+      :global(.intro-val) { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
+      :global(.body-p) {
+        font-size: .99rem; line-height: 1.9; color: #475569;
+        font-weight: 300; margin-bottom: 14px;
+      }
+      :global(.empty-desc) { color:#94a3b8; font-style:italic; }
+      :global(.ext-link) {
+        color: #1a2b6e; font-weight: 600;
+        text-decoration: underline; text-underline-offset: 3px;
+        transition: color .2s;
+      }
+      :global(.ext-link:hover) { color: #cc1818; }
+      :global(.link-txt) { font-weight: 600; color: #1a2b6e; }
+
+      /* ─── Resource Buttons ──────────────────────────────── */
+      :global(.res-btn) {
+        display: inline-flex; align-items: center; gap: 12px;
+        padding: 14px 24px; border-radius: 16px; margin: 12px 0;
+        font-size: .88rem; font-weight: 700; text-decoration: none;
+        transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.05);
+        width: auto; max-width: 100%;
+      }
+      :global(.res-btn:hover) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      }
+      :global(.yt-btn) {
+        background: #fffafa; color: #e11d48; border-color: #fecdd3;
+      }
+      :global(.yt-btn:hover) {
+        background: #e11d48; color: #fff; border-color: #e11d48;
+      }
+      :global(.drive-btn) {
+        background: #f8fafc; color: #1e293b; border-color: #e2e8f0;
+      }
+      :global(.drive-btn:hover) {
+        background: #1e293b; color: #fff; border-color: #1e293b;
+      }
+
+      /* ─── Sidebar ─────────────────────────────────────────── */
+      .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+      /* Image card */
+      .img-card {
+        background: #fff; border-radius: 24px;
+        border: 1px solid #e8eef8;
+        box-shadow: 0 4px 24px rgba(0,0,0,.06);
+        padding: 20px;
+      }
+      .img-label {
+        display: flex; align-items: center; gap: 8px;
+        font-size: .68rem; font-weight: 800; color: #94a3b8;
+        letter-spacing: .18em; text-transform: uppercase; margin-bottom: 14px;
+      }
+      .img-dot { width: 8px; height: 8px; border-radius: 9999px; flex-shrink: 0; }
+      .img-frame {
+        position: relative; border-radius: 16px; overflow: hidden;
+        border: 1px solid #e8eef8;
+      }
+      .prog-img { width: 100%; height: auto; display: block; transition: transform .5s ease; }
+      .img-frame:hover .prog-img { transform: scale(1.04); }
+      .img-sheen { position: absolute; inset: 0; pointer-events: none; }
+
+      /* Funding card */
+      .fund-card {
+        position: relative; overflow: hidden; border-radius: 24px;
+        padding: 26px; color: #fff;
+        box-shadow: 0 10px 40px rgba(0,0,0,.2);
+        transition: transform .3s;
+      }
+      .fund-card:hover { transform: translateY(-3px); }
+      .fund-blob {
+        position: absolute; border-radius: 9999px;
+        background: rgba(255,255,255,.12); filter: blur(44px); pointer-events: none;
+      }
+      .f1 { width:130px; height:130px; top:-30px; right:-30px; }
+      .f2 { width:80px; height:80px; bottom:-20px; left:-20px; background:rgba(0,0,0,.12); }
+      .fund-inner { position: relative; z-index: 1; }
+      .fund-icon {
+        width:42px; height:42px; background:rgba(255,255,255,.22);
+        border-radius:13px; display:flex; align-items:center; justify-content:center;
+        margin-bottom:16px;
+      }
+      .fund-eyebrow {
+        font-size:.67rem; font-weight:800; color:rgba(255,255,255,.65);
+        letter-spacing:.2em; text-transform:uppercase; margin-bottom:6px;
+      }
+      .fund-amount { font-size: 1.7rem; font-weight: 900; line-height: 1.2; }
+
+      /* Apply card */
+      .apply-card {
+        background: #fff; border-radius: 24px;
+        border: 1px solid #e8eef8;
+        box-shadow: 0 4px 24px rgba(0,0,0,.06);
+        padding: 24px;
+      }
+      .apply-icon {
+        width:42px; height:42px; border-radius:13px;
+        display:flex; align-items:center; justify-content:center;
+        margin-bottom:14px; box-shadow:0 4px 16px rgba(0,0,0,.15);
+      }
+      .apply-title { font-size:1.1rem; font-weight:900; color:#0f172a; margin-bottom:6px; }
+      .apply-sub { font-size:.84rem; color:#64748b; line-height:1.55; margin-bottom:18px; }
+      .apply-btn {
+        position:relative; display:flex; align-items:center;
+        justify-content:center; gap:10px; width:100%;
+        padding:14px 22px; border-radius:14px; text-decoration:none;
+        color:#fff; font-size:.8rem; font-weight:800;
+        letter-spacing:.1em; text-transform:uppercase;
+        box-shadow:0 6px 24px rgba(0,0,0,.2);
+        transition: transform .25s, box-shadow .25s; overflow:hidden;
+      }
+      .apply-btn::after {
+        content:''; position:absolute; inset:0;
+        background:rgba(255,255,255,0); transition:background .2s;
+      }
+      .apply-btn:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(0,0,0,.25); }
+      .apply-btn:hover::after { background:rgba(255,255,255,.08); }
+
+      /* Back link */
+      .back-link {
+        display:flex; align-items:center; justify-content:center; gap:8px;
+        font-size:.84rem; font-weight:700; color:#94a3b8;
+        text-decoration:none; transition:color .2s; padding:6px 0;
+      }
+      .back-link:hover { color:#1a2b6e; }
+      .back-link svg { transition:transform .2s; }
+      .back-link:hover svg { transform:translateX(-3px); }
+    </style>
+  </body>
+</html>

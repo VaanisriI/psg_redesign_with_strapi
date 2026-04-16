@@ -1,0 +1,23 @@
+---
+import ProgramLayout from '../../components/ProgramLayout.astro';
+
+let program = null;
+try {
+  const res = await fetch('http://localhost:1337/api/programs/m7tj1r37t4nfiuq4him46auc?populate=image');
+  if (res.ok) {
+    const json = await res.json();
+    program = json.data;
+  }
+} catch (e) {
+  console.error(e);
+}
+
+const accent = {
+  grad: 'linear-gradient(135deg,#5b21b6 0%,#2563eb 100%)',
+  gradFrom: 'from-violet-700',
+  gradTo: 'to-blue-600',
+};
+
+const heroImage = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2400&auto=format&fit=crop';
+---
+<ProgramLayout program={program} accent={accent} heroImage={heroImage} />

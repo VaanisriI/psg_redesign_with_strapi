@@ -2,10 +2,12 @@
 import Header from '../../components/Header.astro';
 import '../../styles/global.css';
 
+const STRAPI_BASE = 'http://127.0.0.1:1337';
+
 export async function getStaticPaths() {
   let programs = [];
   try {
-    const res = await fetch('http://127.0.0.1:1337/api/programs');
+    const res = await fetch('http://127.0.0.1:1337/api/programs?populate=image');
     if (res.ok) {
       const json = await res.json();
       programs = json.data;
@@ -22,59 +24,85 @@ export async function getStaticPaths() {
 
 const { program, slug } = Astro.props;
 
-// Parse raw description: strip ** markdown, convert to rich HTML
-const parseDescription = (raw: string) => {
-  if (!raw) return '<p class="text-slate-500 italic">No detailed information available for this program.</p>';
+// Resolve program image from Strapi (first image in array)
+const strapiImage = Array.isArray(program.image) && program.image.length > 0
+  ? program.image[0]
+  : (program.image && !Array.isArray(program.image) ? program.image : null);
 
-  const lines = raw.split('\n');
-  let html = '';
+const programImageUrl = strapiImage
+  ? `${STRAPI_BASE}${strapiImage.url}`
+  : null;
 
-  lines.forEach((line) => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
-
-    // Convert **text** to a styled section heading
-    const headingMatch = trimmed.match(/^\*\*(.+?)\*\*$/);
-    if (headingMatch) {
-      html += `<div class="flex items-center gap-3 mt-10 mb-4">
-        <div class="w-1 h-6 bg-gradient-to-b from-[#cc1818] to-[#1a2b6e] rounded-full shrink-0"></div>
-        <h3 class="text-lg font-black text-slate-800 tracking-tight">${headingMatch[1]}</h3>
-      </div>`;
-      return;
-    }
-
-    // Numbered list items
-    if (/^\d+\./.test(trimmed)) {
-      const text = trimmed.replace(/^\d+\.\s*/, '');
-      const num = trimmed.match(/^(\d+)/)?.[1];
-      html += `<div class="flex items-start gap-3 py-2 px-4 rounded-xl hover:bg-slate-50 transition-colors">
-        <span class="w-7 h-7 rounded-full bg-[#1a2b6e]/10 text-[#1a2b6e] text-xs font-black flex items-center justify-center shrink-0 mt-0.5">${num}</span>
-        <p class="text-[0.98rem] text-slate-600 leading-relaxed font-normal">${text}</p>
-      </div>`;
-      return;
-    }
-
-    // Main title line (first non-empty bold-ish line)
-    if (trimmed.includes(':') && trimmed.length < 80 && !html) {
-      const [label, ...rest] = trimmed.split(':');
-      html += `<div class="mb-8 pb-6 border-b border-dashed border-slate-200">
-        <p class="text-[#cc1818] font-black text-sm uppercase tracking-[0.2em] mb-1">${label.trim()}</p>
-        ${rest.join(':').trim() ? `<p class="text-xl font-bold text-slate-800">${rest.join(':').trim()}</p>` : ''}
-      </div>`;
-      return;
-    }
-
-    // Regular paragraph
-    html += `<p class="text-[1rem] leading-[1.9] text-slate-600 font-light mb-4">${trimmed}</p>`;
-  });
-
-  return html;
+// ── Accent color per program ──────────────────────────────────────────────────
+const accentMap: Record<string, { primary: string; grad: string; gradFrom: string; gradTo: string; badge: string }> = {
+  'dst-nidhi-centre-of-excellence-in-advanced-technologies': {
+    primary: '#1a2b6e',
+    grad: 'linear-gradient(135deg,#1a2b6e 0%,#cc1818 100%)',
+    gradFrom: 'from-[#1a2b6e]',
+    gradTo: 'to-[#cc1818]',
+    badge: 'bg-blue-900/20 border-blue-400/30 text-blue-200',
+  },
+  'dst-nidhi-prayas': {
+    primary: '#5b21b6',
+    grad: 'linear-gradient(135deg,#5b21b6 0%,#2563eb 100%)',
+    gradFrom: 'from-violet-700',
+    gradTo: 'to-blue-600',
+    badge: 'bg-violet-900/20 border-violet-400/30 text-violet-200',
+  },
+  'dst-nidhi-eir': {
+    primary: '#0369a1',
+    grad: 'linear-gradient(135deg,#0369a1 0%,#0891b2 100%)',
+    gradFrom: 'from-sky-700',
+    gradTo: 'to-cyan-600',
+    badge: 'bg-sky-900/20 border-sky-400/30 text-sky-200',
+  },
+  'meity-tide-2-0': {
+    primary: '#0f766e',
+    grad: 'linear-gradient(135deg,#0f766e 0%,#2563eb 100%)',
+    gradFrom: 'from-teal-700',
+    gradTo: 'to-blue-600',
+    badge: 'bg-teal-900/20 border-teal-400/30 text-teal-200',
+  },
+  'birac-sparsh': {
+    primary: '#be185d',
+    grad: 'linear-gradient(135deg,#be185d 0%,#7c3aed 100%)',
+    gradFrom: 'from-pink-700',
+    gradTo: 'to-purple-700',
+    badge: 'bg-pink-900/20 border-pink-400/30 text-pink-200',
+  },
+  'birac-bionest-initiatives': {
+    primary: '#047857',
+    grad: 'linear-gradient(135deg,#047857 0%,#0369a1 100%)',
+    gradFrom: 'from-emerald-700',
+    gradTo: 'to-sky-700',
+    badge: 'bg-emerald-900/20 border-emerald-400/30 text-emerald-200',
+  },
+  'idex-partner-incubator': {
+    primary: '#b45309',
+    grad: 'linear-gradient(135deg,#b45309 0%,#c2410c 100%)',
+    gradFrom: 'from-amber-700',
+    gradTo: 'to-orange-700',
+    badge: 'bg-amber-900/20 border-amber-400/30 text-amber-200',
+  },
+  'startuptn-initiatives': {
+    primary: '#6d28d9',
+    grad: 'linear-gradient(135deg,#6d28d9 0%,#db2777 100%)',
+    gradFrom: 'from-purple-700',
+    gradTo: 'to-fuchsia-600',
+    badge: 'bg-purple-900/20 border-purple-400/30 text-purple-200',
+  },
 };
 
-const formattedDescription = parseDescription(program.description);
+const accent = accentMap[slug] ?? {
+  primary: '#1e3a8a',
+  grad: 'linear-gradient(135deg,#1e3a8a 0%,#1e40af 100%)',
+  gradFrom: 'from-blue-800',
+  gradTo: 'to-blue-700',
+  badge: 'bg-blue-900/20 border-blue-400/30 text-blue-200',
+};
 
-// Catchy, context-relevant Unsplash images per program
-const programImages: Record<string, string> = {
+// ── Fallback Unsplash hero (used only if no Strapi image exists) ──────────────
+const unsplashFallback: Record<string, string> = {
   'dst-nidhi-centre-of-excellence-in-advanced-technologies':
     'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2400&auto=format&fit=crop',
   'dst-nidhi-prayas':
@@ -93,175 +121,619 @@ const programImages: Record<string, string> = {
     'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2400&auto=format&fit=crop',
 };
 
-const heroImage = programImages[slug] || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2400&auto=format&fit=crop';
+const heroImage = unsplashFallback[slug] ?? 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2400&auto=format&fit=crop';
 
-// Color accent per program for variety
-const accentColors: Record<string, { from: string; to: string; pill: string }> = {
-  'dst-nidhi-prayas':            { from: 'from-violet-600', to: 'to-indigo-800',  pill: 'bg-violet-500/20 border-violet-400/40 text-violet-100' },
-  'dst-nidhi-eir':               { from: 'from-sky-600',    to: 'to-blue-900',    pill: 'bg-sky-500/20 border-sky-400/40 text-sky-100' },
-  'meity-tide-2-0':              { from: 'from-cyan-600',   to: 'to-teal-900',    pill: 'bg-cyan-500/20 border-cyan-400/40 text-cyan-100' },
-  'birac-sparsh':                { from: 'from-rose-600',   to: 'to-pink-900',    pill: 'bg-rose-500/20 border-rose-400/40 text-rose-100' },
-  'birac-bionest-initiatives':   { from: 'from-emerald-600','to': 'to-green-900', pill: 'bg-emerald-500/20 border-emerald-400/40 text-emerald-100' },
-  'idex-partner-incubator':      { from: 'from-amber-500',  to: 'to-orange-800',  pill: 'bg-amber-500/20 border-amber-400/40 text-amber-100' },
-  'startuptn-initiatives':       { from: 'from-fuchsia-600','to': 'to-purple-900',pill: 'bg-fuchsia-500/20 border-fuchsia-400/40 text-fuchsia-100' },
+// ── Parse description into rich HTML blocks ───────────────────────────────────
+const parseDescription = (raw: string): string => {
+  if (!raw) return '<p class="text-slate-400 italic">No detailed information available.</p>';
+
+  const lines = raw.split('\n');
+  let html = '';
+  let firstBlock = true;
+
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t) continue;
+
+    // **Bold** section heading
+    if (/^\*\*(.+?)\*\*$/.test(t)) {
+      const label = t.replace(/^\*\*/, '').replace(/\*\*$/, '');
+      html += `
+        <div class="section-heading">
+          <div class="section-heading-bar"></div>
+          <h3 class="section-heading-text">${label}</h3>
+        </div>`;
+      firstBlock = false;
+      continue;
+    }
+
+    // ALL-CAPS heading (no asterisks, short, no punctuation ending)
+    if (t === t.toUpperCase() && t.length > 3 && t.length < 80 && /^[A-Z]/.test(t) && !/[.!?]$/.test(t) && !t.startsWith('http')) {
+      html += `
+        <div class="section-heading">
+          <div class="section-heading-bar"></div>
+          <h3 class="section-heading-text">${t}</h3>
+        </div>`;
+      firstBlock = false;
+      continue;
+    }
+
+    // Numbered list item
+    if (/^\d+\./.test(t)) {
+      const num = t.match(/^(\d+)/)?.[1] ?? '';
+      const text = t.replace(/^\d+\.\s*/, '');
+      // Handle [link text](link) pattern
+      const linkedText = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+        if (href === 'link') return `<span class="program-link-text">${label}</span>`;
+        return `<a href="${href}" target="_blank" rel="noopener" class="program-link">${label}</a>`;
+      });
+      html += `
+        <div class="list-item">
+          <span class="list-num">${num}</span>
+          <p class="list-text">${linkedText}</p>
+        </div>`;
+      firstBlock = false;
+      continue;
+    }
+
+    // Intro / first paragraph  (first body line that has a colon = subtitle block)
+    if (firstBlock && t.includes(':') && t.length < 100) {
+      const [label, ...rest] = t.split(':');
+      const body = rest.join(':').trim();
+      html += `
+        <div class="intro-block">
+          <p class="intro-label">${label.trim()}</p>
+          ${body ? `<p class="intro-body">${body}</p>` : ''}
+        </div>`;
+      firstBlock = false;
+      continue;
+    }
+
+    // Regular paragraph — handle [text](link) markdown
+    const linkedPara = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => {
+      if (href === 'link') return `<span class="program-link-text">${label}</span>`;
+      return `<a href="${href}" target="_blank" rel="noopener" class="program-link">${label}</a>`;
+    });
+    html += `<p class="body-para">${linkedPara}</p>`;
+    firstBlock = false;
+  }
+
+  return html;
 };
 
-const accent = accentColors[slug] || { from: 'from-blue-700', to: 'to-[#0f2147]', pill: 'bg-blue-500/20 border-blue-400/40 text-blue-100' };
+const formattedDescription = parseDescription(program.description);
+
+// Special features per program (shown as stat cards)
+const featureCards: Record<string, { icon: string; stat: string; label: string }[]> = {
+  'dst-nidhi-centre-of-excellence-in-advanced-technologies': [
+    { icon: '🏛️', stat: '50,000 sq. ft', label: 'Total Infrastructure Area' },
+    { icon: '🚀', stat: '150+', label: 'Startups Supported' },
+    { icon: '🔬', stat: '4', label: 'State-of-the-Art Centres' },
+    { icon: '💡', stat: 'ICT & Electronics', label: 'Focus Domain' },
+  ],
+};
+
+const stats = featureCards[slug] ?? [
+  { icon: '🏛️', stat: 'Govt. Backed', label: 'Funded Initiative' },
+  { icon: '🚀', stat: 'Early Stage', label: 'Startup Support' },
+  { icon: '🔬', stat: 'Deep Tech', label: 'Technology Focus' },
+  { icon: '📋', stat: 'Guided', label: 'Mentorship Program' },
+];
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={program.description?.slice(0, 160) ?? program.title} />
     <title>PSG-STEP | {program.title}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
-  <body class="bg-[#f3f6fa] text-slate-800 font-['Outfit'] min-h-screen flex flex-col antialiased overflow-x-hidden">
+  <body class="bg-[#f0f2f8] text-slate-800 font-['Outfit'] min-h-screen flex flex-col antialiased overflow-x-hidden">
     <Header />
 
     <main class="flex-1">
 
-      <!-- ░░ HERO ░░ -->
-      <div class="relative h-[55vh] sm:h-[65vh] min-h-[480px] w-full overflow-hidden">
+      <!-- ░░░ HERO — full-bleed gradient with Unsplash backdrop ░░░ -->
+      <section class="relative w-full overflow-hidden" style="min-height: 70vh;">
+
+        <!-- Background image -->
         <img
           src={heroImage}
           alt={program.title}
-          class="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-[8s] ease-out"
-          style="animation: slowZoom 10s ease-out forwards"
+          class="hero-bg-img"
         />
-        <!-- gradient -->
-        <div class={`absolute inset-0 bg-gradient-to-br ${accent.from} ${accent.to} opacity-80`}></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10"></div>
-        <!-- dot pattern -->
-        <div class="absolute inset-0 opacity-[0.07]" style="background-image: radial-gradient(#ffffff 1.5px, transparent 1.5px); background-size: 28px 28px;"></div>
 
-        <div class="relative h-full flex flex-col justify-end pb-16 max-w-6xl mx-auto px-6 lg:px-12">
+        <!-- Colour overlay (gradient per program) -->
+        <div class="absolute inset-0" style={`background: ${accent.grad}; opacity: 0.82;`}></div>
+
+        <!-- Dark vignette bottom -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+
+        <!-- Dot texture -->
+        <div
+          class="absolute inset-0 opacity-[0.06]"
+          style="background-image: radial-gradient(#fff 1.5px, transparent 1.5px); background-size: 26px 26px;"
+        ></div>
+
+        <!-- Floating blobs -->
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+
+        <!-- Hero content -->
+        <div class="relative z-10 max-w-6xl mx-auto px-6 lg:px-12 flex flex-col justify-end pb-20 h-full" style="min-height: 70vh;">
+
+          <!-- Breadcrumb -->
+          <nav class="hero-breadcrumb mb-8">
+            <a href="/" class="hero-breadcrumb-link">Home</a>
+            <span class="hero-breadcrumb-sep">›</span>
+            <a href="/#programs" class="hero-breadcrumb-link">Programs</a>
+            <span class="hero-breadcrumb-sep">›</span>
+            <span class="hero-breadcrumb-current">{program.title}</span>
+          </nav>
+
+          <!-- Tagline pill -->
           {program.tagline && (
-            <div class={`inline-flex self-start items-center gap-2.5 px-5 py-2 ${accent.pill} border backdrop-blur-md rounded-full text-xs font-black uppercase tracking-[0.22em] mb-6`}>
-              <span class="w-2 h-2 rounded-full bg-current animate-pulse"></span>
-              {program.tagline}
+            <div class="hero-pill mb-5">
+              <span class="hero-pill-dot"></span>
+              <span>{program.tagline}</span>
             </div>
           )}
 
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight drop-shadow-lg max-w-3xl">
-            {program.title}
-          </h1>
+          <!-- Title -->
+          <h1 class="hero-title">{program.title}</h1>
 
-          <div class="w-20 h-1 bg-white/60 rounded-full mt-6"></div>
+          <!-- Divider line -->
+          <div class="hero-divider"></div>
+        </div>
+      </section>
+
+      <!-- ░░░ STATS STRIP ░░░ -->
+      <div class="max-w-6xl mx-auto px-6 lg:px-12 -mt-8 relative z-30">
+        <div class="stats-strip">
+          {stats.map((s) => (
+            <div class="stat-card">
+              <span class="stat-icon">{s.icon}</span>
+              <span class="stat-value">{s.stat}</span>
+              <span class="stat-label">{s.label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <!-- ░░ CONTENT ░░ -->
-      <div class="max-w-6xl mx-auto px-6 lg:px-12 py-12 -mt-16 relative z-20">
-        <div class="flex flex-col lg:flex-row gap-8 items-start">
+      <!-- ░░░ MAIN CONTENT ░░░ -->
+      <div class="max-w-6xl mx-auto px-6 lg:px-12 py-14 relative z-20">
+        <div class="content-grid">
 
-          <!-- ── Description Card (wide) ── -->
-          <div class="w-full lg:flex-1 bg-white rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.07)] border border-slate-100 overflow-hidden">
+          <!-- ── LEFT: Description card ── -->
+          <article class="desc-card">
+            <!-- Card top accent bar -->
+            <div class="desc-card-bar" style={`background: ${accent.grad};`}></div>
 
-            <!-- card top accent bar -->
-            <div class={`h-1.5 w-full bg-gradient-to-r ${accent.from} ${accent.to}`}></div>
-
-            <div class="p-8 md:p-12">
-              <div class="flex items-center gap-3 mb-8">
-                <div class={`w-10 h-10 rounded-xl bg-gradient-to-br ${accent.from} ${accent.to} flex items-center justify-center shadow-md`}>
+            <div class="desc-card-inner">
+              <!-- Section header -->
+              <div class="desc-header">
+                <div class="desc-icon-wrap" style={`background: ${accent.grad};`}>
                   <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                   </svg>
                 </div>
                 <div>
-                  <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Program Details</p>
-                  <h2 class="text-xl font-black text-slate-800">Overview</h2>
+                  <p class="desc-eyebrow">Program Details</p>
+                  <h2 class="desc-heading">Overview</h2>
                 </div>
               </div>
 
-              <!-- Parsed Description -->
-              <div class="divide-y divide-slate-50">
-                <div set:html={formattedDescription} />
-              </div>
+              <!-- Parsed description HTML -->
+              <div class="desc-body" set:html={formattedDescription} />
             </div>
-          </div>
+          </article>
 
-          <!-- ── Sidebar ── -->
-          <div class="w-full lg:w-[320px] flex flex-col gap-6 shrink-0">
+          <!-- ── RIGHT: Sidebar ── -->
+          <aside class="sidebar">
 
-            <!-- Funding Card -->
+            <!-- Program Image from Strapi -->
+            {programImageUrl && (
+              <div class="sidebar-img-card">
+                <div class="sidebar-img-label">
+                  <span class="sidebar-img-dot" style={`background: ${accent.grad};`}></span>
+                  Centre Photo
+                </div>
+                <div class="sidebar-img-wrap">
+                  <img
+                    src={programImageUrl}
+                    alt={strapiImage?.alternativeText ?? program.title}
+                    class="sidebar-img"
+                  />
+                  <div class="sidebar-img-overlay" style={`background: ${accent.grad}; opacity: 0.08;`}></div>
+                </div>
+              </div>
+            )}
+
+            <!-- Funding card -->
             {program.funding && (
-              <div class={`relative overflow-hidden rounded-[1.8rem] bg-gradient-to-br ${accent.from} ${accent.to} p-8 text-white shadow-[0_10px_40px_rgba(0,0,0,0.18)] hover:-translate-y-1 transition-transform duration-300`}>
-                <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                <div class="absolute -left-4 -bottom-4 w-20 h-20 bg-black/10 rounded-full blur-xl"></div>
-
+              <div class="funding-card" style={`background: ${accent.grad};`}>
+                <div class="funding-glow1"></div>
+                <div class="funding-glow2"></div>
                 <div class="relative z-10">
-                  <div class="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center mb-5 shadow-inner">
+                  <div class="funding-icon-wrap">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                   </div>
-                  <p class="text-white/60 font-bold text-[10px] uppercase tracking-[0.22em] mb-2">Funding Support</p>
-                  <p class="text-3xl font-black leading-tight">{program.funding}</p>
+                  <p class="funding-eyebrow">Funding Support</p>
+                  <p class="funding-amount">{program.funding}</p>
                 </div>
               </div>
             )}
 
-            <!-- Program Highlights Card -->
-            <div class="bg-white rounded-[1.8rem] border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.05)] p-7">
-              <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-5">Program Highlights</h3>
-              <ul class="space-y-3">
-                {[
-                  { icon: '🏛️', label: 'Government Backed Initiative' },
-                  { icon: '🚀', label: 'Early Stage Support' },
-                  { icon: '🔬', label: 'Technology Focused' },
-                  { icon: '📋', label: 'Structured Mentorship' },
-                ].map(item => (
-                  <li class="flex items-center gap-3 text-sm text-slate-600 font-medium">
-                    <span class="text-lg">{item.icon}</span>
-                    {item.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <!-- Apply CTA Card -->
+            <!-- Apply CTA card -->
             {program.applyUrl && program.applyUrl !== 'null' && program.applyUrl.trim() !== '' && (
-              <div class="bg-white rounded-[1.8rem] border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.05)] p-7">
-                <h3 class="text-lg font-black text-slate-800 mb-2">Ready to Apply?</h3>
-                <p class="text-sm text-slate-500 mb-6 leading-relaxed">Take the next step in your innovation journey today.</p>
-                <a
-                  href={program.applyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class={`relative group flex items-center justify-center gap-3 w-full px-8 py-4 rounded-xl text-white text-sm font-bold uppercase tracking-widest bg-gradient-to-r ${accent.from} ${accent.to} shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden`}
-                >
-                  <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <span class="relative">Apply Now</span>
-                  <svg class="relative w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                  </svg>
-                </a>
+              <div class="apply-card">
+                <div class="apply-card-inner">
+                  <div class="apply-card-icon" style={`background: ${accent.grad};`}>
+                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                  </div>
+                  <h3 class="apply-card-title">Ready to Apply?</h3>
+                  <p class="apply-card-sub">Take the next step in your innovation journey today.</p>
+                  <a
+                    href={program.applyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="apply-btn"
+                    style={`background: ${accent.grad};`}
+                    id="apply-now-btn"
+                  >
+                    <span>Apply Now</span>
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                  </a>
+                </div>
               </div>
             )}
 
-            <!-- Contact / Return -->
-            <a href="/" class="flex items-center justify-center gap-2 text-sm text-slate-400 hover:text-[#1a2b6e] font-bold transition-colors group">
-              <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <!-- Back to Home -->
+            <a href="/" class="back-link" id="back-home-btn">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
               </svg>
               Back to Home
             </a>
 
-          </div>
-
+          </aside>
         </div>
       </div>
+
     </main>
 
     <style>
+      /* ─── Animations ──────────────────────────────────────────── */
       @keyframes slowZoom {
-        0%   { transform: scale(1.05); }
-        100% { transform: scale(1.12); }
+        from { transform: scale(1.05); }
+        to   { transform: scale(1.13); }
       }
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes blobFloat {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50%       { transform: translate(20px, -20px) scale(1.08); }
+      }
+
+      /* ─── Hero ────────────────────────────────────────────────── */
+      .hero-bg-img {
+        position: absolute; inset: 0;
+        width: 100%; height: 100%; object-fit: cover; object-position: center;
+        animation: slowZoom 12s ease-out forwards;
+      }
+
+      .blob {
+        position: absolute; border-radius: 9999px;
+        filter: blur(80px); opacity: 0.25; pointer-events: none;
+        animation: blobFloat 8s ease-in-out infinite;
+      }
+      .blob-1 {
+        width: 420px; height: 420px;
+        background: rgba(255,255,255,0.25);
+        top: -80px; right: -60px;
+        animation-delay: 0s;
+      }
+      .blob-2 {
+        width: 300px; height: 300px;
+        background: rgba(255,255,255,0.12);
+        bottom: 60px; left: -40px;
+        animation-delay: 3s;
+      }
+
+      .hero-breadcrumb {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 0.78rem; font-weight: 500;
+        animation: fadeUp 0.7s ease both;
+      }
+      .hero-breadcrumb-link {
+        color: rgba(255,255,255,0.65); text-decoration: none; transition: color 0.2s;
+      }
+      .hero-breadcrumb-link:hover { color: #fff; }
+      .hero-breadcrumb-sep { color: rgba(255,255,255,0.4); }
+      .hero-breadcrumb-current { color: #fff; font-weight: 700; }
+
+      .hero-pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 18px;
+        border: 1px solid rgba(255,255,255,0.35);
+        border-radius: 9999px;
+        background: rgba(255,255,255,0.12);
+        backdrop-filter: blur(12px);
+        color: #fff; font-size: 0.72rem; font-weight: 800;
+        letter-spacing: 0.18em; text-transform: uppercase;
+        animation: fadeUp 0.75s 0.1s ease both;
+      }
+      .hero-pill-dot {
+        width: 7px; height: 7px; border-radius: 9999px;
+        background: #fff; animation: pulse 1.8s infinite;
+      }
+      @keyframes pulse {
+        0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+      }
+
+      .hero-title {
+        font-size: clamp(2rem, 5vw, 3.6rem);
+        font-weight: 900;
+        color: #fff;
+        line-height: 1.08;
+        letter-spacing: -0.02em;
+        text-shadow: 0 4px 24px rgba(0,0,0,0.35);
+        max-width: 700px;
+        animation: fadeUp 0.8s 0.2s ease both;
+      }
+
+      .hero-divider {
+        width: 80px; height: 4px; border-radius: 9999px;
+        background: rgba(255,255,255,0.5); margin-top: 24px;
+        animation: fadeUp 0.85s 0.3s ease both;
+      }
+
+      /* ─── Stats strip ─────────────────────────────────────────── */
+      .stats-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 12px 48px rgba(0,0,0,0.1);
+        overflow: hidden;
+        animation: fadeUp 0.9s 0.35s ease both;
+      }
+
+      .stat-card {
+        display: flex; flex-direction: column; align-items: center;
+        gap: 4px; padding: 22px 18px;
+        border-right: 1px solid #f1f5f9;
+        transition: background 0.2s;
+      }
+      .stat-card:last-child { border-right: none; }
+      .stat-card:hover { background: #f8faff; }
+
+      .stat-icon { font-size: 1.5rem; line-height: 1; }
+      .stat-value { font-size: 1.05rem; font-weight: 800; color: #1e293b; text-align: center; }
+      .stat-label { font-size: 0.72rem; font-weight: 600; color: #94a3b8; text-align: center; letter-spacing: 0.03em; }
+
+      /* ─── Content grid ────────────────────────────────────────── */
+      .content-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 28px;
+        animation: fadeUp 1s 0.4s ease both;
+      }
+      @media (min-width: 1024px) {
+        .content-grid {
+          grid-template-columns: 1fr 340px;
+          align-items: start;
+        }
+      }
+
+      /* ─── Description card ────────────────────────────────────── */
+      .desc-card {
+        background: #fff;
+        border-radius: 28px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.07);
+        border: 1px solid #e8eef8;
+        overflow: hidden;
+      }
+      .desc-card-bar { height: 5px; width: 100%; }
+
+      .desc-card-inner { padding: 36px 44px; }
+      @media (max-width: 640px) { .desc-card-inner { padding: 24px 20px; } }
+
+      .desc-header {
+        display: flex; align-items: center; gap: 14px; margin-bottom: 32px;
+        padding-bottom: 20px; border-bottom: 1px dashed #e2e8f0;
+      }
+      .desc-icon-wrap {
+        width: 44px; height: 44px; border-radius: 14px;
+        display: flex; align-items: center; justify-center: center;
+        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      }
+      .desc-eyebrow {
+        font-size: 0.67rem; font-weight: 800; color: #94a3b8;
+        letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 2px;
+      }
+      .desc-heading { font-size: 1.25rem; font-weight: 900; color: #0f172a; }
+
+      /* ─── Parsed description internals ───────────────────────── */
+      .desc-body { line-height: 1; }
+
+      :global(.section-heading) {
+        display: flex; align-items: center; gap: 12px;
+        margin-top: 36px; margin-bottom: 14px;
+      }
+      :global(.section-heading-bar) {
+        width: 4px; height: 22px; border-radius: 9999px;
+        background: linear-gradient(to bottom, #1a2b6e, #cc1818);
+        flex-shrink: 0;
+      }
+      :global(.section-heading-text) {
+        font-size: 1.05rem; font-weight: 800; color: #1e293b; letter-spacing: -0.01em;
+      }
+
+      :global(.list-item) {
+        display: flex; align-items: flex-start; gap: 12px;
+        padding: 10px 14px; border-radius: 12px;
+        transition: background 0.15s;
+      }
+      :global(.list-item:hover) { background: #f8faff; }
+      :global(.list-num) {
+        width: 28px; height: 28px; border-radius: 9999px;
+        background: #1a2b6e14; color: #1a2b6e;
+        font-size: 0.73rem; font-weight: 900;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; margin-top: 1px;
+      }
+      :global(.list-text) {
+        font-size: 0.97rem; color: #475569; line-height: 1.75; font-weight: 400;
+      }
+
+      :global(.intro-block) {
+        margin-bottom: 24px; padding-bottom: 20px;
+        border-bottom: 1px dashed #e2e8f0;
+      }
+      :global(.intro-label) {
+        font-size: 0.72rem; font-weight: 800;
+        color: #cc1818; text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 4px;
+      }
+      :global(.intro-body) { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
+
+      :global(.body-para) {
+        font-size: 1rem; line-height: 1.9; color: #475569; font-weight: 300; margin-bottom: 16px;
+      }
+
+      :global(.program-link) {
+        color: #1a2b6e; font-weight: 600; text-decoration: underline;
+        text-underline-offset: 3px; transition: color 0.2s;
+      }
+      :global(.program-link:hover) { color: #cc1818; }
+      :global(.program-link-text) { font-weight: 600; color: #1a2b6e; }
+
+      /* ─── Sidebar ─────────────────────────────────────────────── */
+      .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+      /* Program image card */
+      .sidebar-img-card {
+        background: #fff; border-radius: 24px;
+        border: 1px solid #e8eef8;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        overflow: hidden;
+        padding: 20px;
+      }
+      .sidebar-img-label {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 0.7rem; font-weight: 800;
+        color: #94a3b8; letter-spacing: 0.18em;
+        text-transform: uppercase; margin-bottom: 14px;
+      }
+      .sidebar-img-dot {
+        width: 8px; height: 8px; border-radius: 9999px; flex-shrink: 0;
+      }
+      .sidebar-img-wrap {
+        position: relative; border-radius: 16px; overflow: hidden;
+        border: 1px solid #e8eef8;
+      }
+      .sidebar-img {
+        width: 100%; height: auto; display: block;
+        transition: transform 0.5s ease;
+      }
+      .sidebar-img-wrap:hover .sidebar-img { transform: scale(1.04); }
+      .sidebar-img-overlay {
+        position: absolute; inset: 0; pointer-events: none;
+      }
+
+      /* Funding card */
+      .funding-card {
+        position: relative; overflow: hidden; border-radius: 24px;
+        padding: 28px; color: #fff;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        transition: transform 0.3s;
+      }
+      .funding-card:hover { transform: translateY(-3px); }
+      .funding-glow1 {
+        position: absolute; width: 140px; height: 140px; border-radius: 9999px;
+        background: rgba(255,255,255,0.12); filter: blur(50px);
+        top: -30px; right: -30px;
+      }
+      .funding-glow2 {
+        position: absolute; width: 90px; height: 90px; border-radius: 9999px;
+        background: rgba(0,0,0,0.12); filter: blur(30px);
+        bottom: -20px; left: -20px;
+      }
+      .funding-icon-wrap {
+        width: 44px; height: 44px; background: rgba(255,255,255,0.2); border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 18px;
+      }
+      .funding-eyebrow {
+        font-size: 0.68rem; font-weight: 800; color: rgba(255,255,255,0.65);
+        letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 6px;
+      }
+      .funding-amount { font-size: 1.8rem; font-weight: 900; line-height: 1.2; }
+
+      /* Apply card */
+      .apply-card {
+        background: #fff; border-radius: 24px;
+        border: 1px solid #e8eef8;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        overflow: hidden;
+      }
+      .apply-card-inner { padding: 24px; }
+      .apply-card-icon {
+        width: 44px; height: 44px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      }
+      .apply-card-title { font-size: 1.15rem; font-weight: 900; color: #0f172a; margin-bottom: 6px; }
+      .apply-card-sub { font-size: 0.85rem; color: #64748b; line-height: 1.55; margin-bottom: 20px; }
+
+      .apply-btn {
+        position: relative; display: flex; align-items: center;
+        justify-content: center; gap: 10px;
+        width: 100%; padding: 14px 24px; border-radius: 14px;
+        color: #fff; font-size: 0.82rem; font-weight: 800;
+        letter-spacing: 0.1em; text-transform: uppercase;
+        text-decoration: none;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+        transition: transform 0.25s, box-shadow 0.25s;
+        overflow: hidden;
+      }
+      .apply-btn::after {
+        content: ''; position: absolute; inset: 0;
+        background: rgba(255,255,255,0); transition: background 0.2s;
+      }
+      .apply-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,0,0,0.25); }
+      .apply-btn:hover::after { background: rgba(255,255,255,0.08); }
+
+      /* Back link */
+      .back-link {
+        display: flex; align-items: center; justify-content: center;
+        gap: 8px; font-size: 0.85rem; font-weight: 700;
+        color: #94a3b8; text-decoration: none;
+        transition: color 0.2s;
+        padding: 6px 0;
+      }
+      .back-link:hover { color: #1a2b6e; }
+      .back-link svg { transition: transform 0.2s; }
+      .back-link:hover svg { transform: translateX(-3px); }
     </style>
   </body>
 </html>
