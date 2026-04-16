@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import '../styles/global.css';
+import { fetchStrapi } from '../lib/strapi';
 
 // Fetch ONLY the 'About PSG-STEP' content for the homepage via Strapi Filtering API
 let fetchedAboutContent = `
@@ -8,25 +9,17 @@ let fetchedAboutContent = `
 `;
 let psgStepTitle = 'About PSG-STEP';
 
-try {
-  // We use Strapi filters to target EXACTLY the element we need, instead of fetching everything.
-  const res = await fetch('http://127.0.0.1:1337/api/abouts?filters[title][$eq]=About PSG-STEP&populate=*');
-  if (res.ok) {
-    const json = await res.json();
-    // 'data' will be an array with exactly one element if the title matches
-    if (json.data && json.data.length > 0) {
-      const psgStepDoc = json.data[0];
-      psgStepTitle = psgStepDoc.title;
-      fetchedAboutContent = psgStepDoc.content;
-      
-      // Catchy styling transformations without changing text content
-      fetchedAboutContent = fetchedAboutContent.replace(/<font color="#0000CD">\s*<b>(.*?)<\/b>\s*<\/font>/gi, '<span class="text-[#1a2b6e] font-black bg-blue-500/10 px-2 py-0.5 rounded-lg border border-blue-500/20 shadow-sm">$1</span>');
-      fetchedAboutContent = fetchedAboutContent.replace(/<b>\s*<font color="#0000CD">(.*?)<\/font>\s*<\/b>/gi, '<span class="text-[#1a2b6e] font-black bg-blue-500/10 px-2 py-0.5 rounded-lg border border-blue-500/20 shadow-sm">$1</span>');
-      fetchedAboutContent = fetchedAboutContent.replace(/<font color="#0000CD">(.*?)<\/font>/gi, '<span class="text-[#1a2b6e] font-bold">$1</span>');
-    }
-  }
-} catch (error) {
-  console.error("Error fetching about PSG-STEP:", error);
+const json = await fetchStrapi('api/abouts?filters[title][$eq]=About PSG-STEP&populate=*');
+
+if (json?.data?.length > 0) {
+  const psgStepDoc = json.data[0];
+  psgStepTitle = psgStepDoc.title;
+  fetchedAboutContent = psgStepDoc.content;
+  
+  // Catchy styling transformations without changing text content
+  fetchedAboutContent = fetchedAboutContent.replace(/<font color="#0000CD">\s*<b>(.*?)<\/b>\s*<\/font>/gi, '<span class="text-[#1a2b6e] font-black bg-blue-500/10 px-2 py-0.5 rounded-lg border border-blue-500/20 shadow-sm">$1</span>');
+  fetchedAboutContent = fetchedAboutContent.replace(/<b>\s*<font color="#0000CD">(.*?)<\/font>\s*<\/b>/gi, '<span class="text-[#1a2b6e] font-black bg-blue-500/10 px-2 py-0.5 rounded-lg border border-blue-500/20 shadow-sm">$1</span>');
+  fetchedAboutContent = fetchedAboutContent.replace(/<font color="#0000CD">(.*?)<\/font>/gi, '<span class="text-[#1a2b6e] font-bold">$1</span>');
 }
 ---
 

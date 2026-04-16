@@ -13,8 +13,9 @@ interface Props {
   heroImage: string;
 }
 
+import { STRAPI_URL } from '../lib/strapi';
+
 const { program, accent, heroImage } = Astro.props;
-const STRAPI_BASE = 'http://127.0.0.1:1337';
 
 // Resolve Strapi image — handles both array [] and single object {}
 const rawImg = program?.image;
@@ -23,7 +24,7 @@ const strapiImg = Array.isArray(rawImg)
   : (rawImg && typeof rawImg === 'object' && rawImg.url ? rawImg : null);
 
 // Build full absolute URL pointing at Strapi server
-const programImageUrl = strapiImg?.url ? `${STRAPI_BASE}${strapiImg.url}` : null;
+const programImageUrl = strapiImg?.url ? `${STRAPI_URL}${strapiImg.url}` : null;
 
 // Derive a readable label from the filename (strip extension & hyphens)
 const imgFileName = strapiImg?.name ?? '';

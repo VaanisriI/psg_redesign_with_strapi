@@ -1,9 +1,9 @@
 ---
 import ProgramLayout from '../../components/ProgramLayout.astro';
+import { getProgramBySlug } from '../../lib/strapi';
 
-const res = await fetch('http://127.0.0.1:1337/api/programs/pm2u7q0l5tpook6ffimbmotd?populate=image');
-const json = await res.json();
-const program = json.data;
+const slug = Astro.url.pathname.split('/').filter(Boolean).pop();
+const program = await getProgramBySlug(slug);
 
 const accent = {
   grad: 'linear-gradient(135deg,#0369a1 0%,#0891b2 100%)',

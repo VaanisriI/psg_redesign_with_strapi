@@ -1,19 +1,13 @@
 ---
 import Header from '../../components/Header.astro';
 import '../../styles/global.css';
-
-const STRAPI_BASE = 'http://127.0.0.1:1337';
+import { fetchStrapi, STRAPI_URL } from '../../lib/strapi';
 
 export async function getStaticPaths() {
   let programs = [];
-  try {
-    const res = await fetch('http://127.0.0.1:1337/api/programs?populate=image');
-    if (res.ok) {
-      const json = await res.json();
-      programs = json.data;
-    }
-  } catch (error) {
-    console.error("Error fetching programs for paths:", error);
+  const json = await fetchStrapi('api/programs?populate=image');
+  if (json?.data) {
+    programs = json.data;
   }
 
   return programs.map((program) => {
@@ -30,7 +24,7 @@ const strapiImage = Array.isArray(program.image) && program.image.length > 0
   : (program.image && !Array.isArray(program.image) ? program.image : null);
 
 const programImageUrl = strapiImage
-  ? `${STRAPI_BASE}${strapiImage.url}`
+  ? `${STRAPI_URL}${strapiImage.url}`
   : null;
 
 // ── Accent color per program ──────────────────────────────────────────────────

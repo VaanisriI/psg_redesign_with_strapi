@@ -1,39 +1,33 @@
 ---
 import Header from '../components/Header.astro';
 import '../styles/global.css';
+import { fetchStrapi, STRAPI_URL } from '../lib/strapi';
 
 // Fetch ONLY the 'About PSG-STEP' content using the Strapi Filtering API
 let fetchedContent = '';
 let pageTitle = 'About PSG-STEP';
 let imageUrl = '';
 
-try {
-  // Utilizing Strapi's filtering system to only request the specific "About PSG-STEP" record
-  const res = await fetch('http://127.0.0.1:1337/api/abouts?filters[title][$eq]=About PSG-STEP&populate=*');
-  if (res.ok) {
-    const json = await res.json();
-    if (json.data && json.data.length > 0) {
-      const doc = json.data[0];
-      pageTitle = doc.title || 'About PSG-STEP';
-      fetchedContent = doc.content || '';
-      
-      // Cleanup Strapi legacy rich text formats and inject modern tailwind classes, using the brand red accent (#cc1818)
-      fetchedContent = fetchedContent.replace(/<font color="#0000CD">\s*<b>(.*?)<\/b>\s*<\/font>/gi, '<span class="text-[#8B1A1A] font-black bg-red-500/10 px-2 py-0.5 rounded-lg border border-red-500/20 shadow-sm transition-all duration-300 hover:bg-red-500/20 mb-1 leading-relaxed inline-block">$1</span>');
-      fetchedContent = fetchedContent.replace(/<b>\s*<font color="#0000CD">(.*?)<\/font>\s*<\/b>/gi, '<span class="text-[#8B1A1A] font-black bg-red-500/10 px-2 py-0.5 rounded-lg border border-red-500/20 shadow-sm transition-all duration-300 hover:bg-red-500/20 mb-1 leading-relaxed inline-block">$1</span>');
-      fetchedContent = fetchedContent.replace(/<font color="#0000CD">(.*?)<\/font>/gi, '<span class="text-red-700 font-bold">$1</span>');
+const json = await fetchStrapi('api/abouts?filters[title][$eq]=About PSG-STEP&populate=*');
 
-      // Check if image exists in relation data
-      if (doc.image && doc.image.url) {
-        imageUrl = `http://127.0.0.1:1337${doc.image.url}`;
-      } else if (doc.Images && doc.Images.length > 0) {
-        imageUrl = `http://127.0.0.1:1337${doc.Images[0].url}`;
-      } else if (doc.Image && doc.Image.url) {
-         imageUrl = `http://127.0.0.1:1337${doc.Image.url}`;
-      }
-    }
+if (json?.data?.length > 0) {
+  const doc = json.data[0];
+  pageTitle = doc.title || 'About PSG-STEP';
+  fetchedContent = doc.content || '';
+  
+  // Cleanup Strapi legacy rich text formats and inject modern tailwind classes, using the brand red accent (#cc1818)
+  fetchedContent = fetchedContent.replace(/<font color="#0000CD">\s*<b>(.*?)<\/b>\s*<\/font>/gi, '<span class="text-[#8B1A1A] font-black bg-red-500/10 px-2 py-0.5 rounded-lg border border-red-500/20 shadow-sm transition-all duration-300 hover:bg-red-500/20 mb-1 leading-relaxed inline-block">$1</span>');
+  fetchedContent = fetchedContent.replace(/<b>\s*<font color="#0000CD">(.*?)<\/font>\s*<\/b>/gi, '<span class="text-[#8B1A1A] font-black bg-red-500/10 px-2 py-0.5 rounded-lg border border-red-500/20 shadow-sm transition-all duration-300 hover:bg-red-500/20 mb-1 leading-relaxed inline-block">$1</span>');
+  fetchedContent = fetchedContent.replace(/<font color="#0000CD">(.*?)<\/font>/gi, '<span class="text-red-700 font-bold">$1</span>');
+
+  // Check if image exists in relation data
+  if (doc.image?.url) {
+    imageUrl = `${STRAPI_URL}${doc.image.url}`;
+  } else if (doc.Images?.length > 0) {
+    imageUrl = `${STRAPI_URL}${doc.Images[0].url}`;
+  } else if (doc.Image?.url) {
+     imageUrl = `${STRAPI_URL}${doc.Image.url}`;
   }
-} catch (error) {
-  console.error(`Error fetching ${pageTitle}:`, error);
 }
 ---
 
