@@ -602,5 +602,34 @@ export default {
 
       console.log('Successfully seeded about entries.');
     }
+
+    // --- Seed images for Abouts ---
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      
+      async function seedImage(title, imageRelPath) {
+        const entry = await strapi.db.query('api::about.about').findOne({ where: { title }, populate: ['image'] });
+        if (entry && !entry.image) {
+          const absPath = path.resolve(process.cwd(), imageRelPath);
+          if (fs.existsSync(absPath)) {
+            const stat = fs.statSync(absPath);
+            const fileName = path.basename(absPath);
+            await strapi.plugin('upload').service('upload').upload({
+              data: { refId: entry.id, ref: 'api::about.about', field: 'image' },
+              files: { path: absPath, name: fileName, type: 'image/jpeg', size: stat.size }
+            });
+            console.log(`[Seed] Successfully attached image for ${title}`);
+          } else {
+             console.log(`[Seed] Image not found at path: ${absPath}`);
+          }
+        }
+      }
+      
+      await seedImage('About PSG Tech', '../frontend/public/images/about-psg-tech.jpg');
+      await seedImage('About PSG-STEP', '../frontend/public/images/about-psg-step.jpg');
+    } catch (err) {
+       console.error('[Seed] Failed to seed abouts images:', err);
+    }
   },
 };

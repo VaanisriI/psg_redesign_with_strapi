@@ -1,6 +1,33 @@
 ---
 import Header from '../components/Header.astro';
 import '../styles/global.css';
+
+// Fetch ONLY the 'About PSG-STEP' content for the homepage via Strapi Filtering API
+let fetchedAboutContent = `
+  <p>The <span class="text-[#1a2b6e] font-extrabold bg-[#1a2b6e]/5 px-1.5 py-0.5 rounded border border-[#1a2b6e]/10">PSG-Science &amp; Technology Entrepreneurial Park (PSG-STEP)</span> was established in the year 1998 with the support from Department of Science &amp; Technology, Government of India, IDBI and ICICI at PSG College of Technology to promote technology based enterprises in the areas of software, electronic products, hi-tech mechanical products, and eco-friendly textile products &amp; bio-technology using the core strengths of PSG College of Technology.</p>
+`;
+let psgStepTitle = 'About PSG-STEP';
+
+try {
+  // We use Strapi filters to target EXACTLY the element we need, instead of fetching everything.
+  const res = await fetch('http://127.0.0.1:1337/api/abouts?filters[title][$eq]=About PSG-STEP&populate=*');
+  if (res.ok) {
+    const json = await res.json();
+    // 'data' will be an array with exactly one element if the title matches
+    if (json.data && json.data.length > 0) {
+      const psgStepDoc = json.data[0];
+      psgStepTitle = psgStepDoc.title;
+      fetchedAboutContent = psgStepDoc.content;
+      
+      // Catchy styling transformations without changing text content
+      fetchedAboutContent = fetchedAboutContent.replace(/<font color="#0000CD">\s*<b>(.*?)<\/b>\s*<\/font>/gi, '<span class="text-[#1a2b6e] font-black bg-blue-500/10 px-2 py-0.5 rounded-lg border border-blue-500/20 shadow-sm">$1</span>');
+      fetchedAboutContent = fetchedAboutContent.replace(/<b>\s*<font color="#0000CD">(.*?)<\/font>\s*<\/b>/gi, '<span class="text-[#1a2b6e] font-black bg-blue-500/10 px-2 py-0.5 rounded-lg border border-blue-500/20 shadow-sm">$1</span>');
+      fetchedAboutContent = fetchedAboutContent.replace(/<font color="#0000CD">(.*?)<\/font>/gi, '<span class="text-[#1a2b6e] font-bold">$1</span>');
+    }
+  }
+} catch (error) {
+  console.error("Error fetching about PSG-STEP:", error);
+}
 ---
 
 <html lang="en">
@@ -149,14 +176,17 @@ import '../styles/global.css';
                   About Us
                </div>
                
+               <!-- Use fetched title but make it catchy using gradients -->
                <h2 class="text-4xl lg:text-5xl font-black text-slate-800 mb-8 leading-[1.1] tracking-tight">
-                  Driving <span class="bg-gradient-to-r from-[#1a2b6e] to-blue-600 bg-clip-text text-transparent">deep-tech</span> innovation <br />since 1998.
+                  <span class="bg-gradient-to-r from-[#1a2b6e] to-blue-600 bg-clip-text text-transparent">
+                     {psgStepTitle || 'Driving deep-tech innovation since 1998.'}
+                  </span>
                </h2>
                
-               <!-- Their Exact Content perfectly padded -->
-               <p class="text-lg text-slate-600 leading-[1.8] font-medium mb-10 text-justify">
-                  The <span class="text-[#1a2b6e] font-extrabold bg-[#1a2b6e]/5 px-1.5 py-0.5 rounded border border-[#1a2b6e]/10">PSG-Science &amp; Technology Entrepreneurial Park (PSG-STEP)</span> was established in the year 1998 with the support from Department of Science &amp; Technology, Government of India, IDBI and ICICI at PSG College of Technology to promote technology based enterprises in the areas of software, electronic products, hi-tech mechanical products, and eco-friendly textile products &amp; bio-technology using the core strengths of PSG College of Technology.
-               </p>
+               <!-- Dynamically Render the Fetched Content with Tailwind arbitrary variants for <p> styling -->
+               <div class="[&>p]:text-lg [&>p]:text-slate-600 [&>p]:leading-[1.8] [&>p]:font-medium [&>p]:mb-6 [&>p]:text-justify space-y-4 mb-10 max-h-[400px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent">
+                  <Fragment set:html={fetchedAboutContent} />
+               </div>
                
                <!-- Elevated Supported By Card -->
                <div class="p-6 bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200/40 relative overflow-hidden group hover:border-[#1a2b6e]/20 transition-colors">
