@@ -1,0 +1,267 @@
+---
+import Header from '../../components/Header.astro';
+import '../../styles/global.css';
+
+export async function getStaticPaths() {
+  let programs = [];
+  try {
+    const res = await fetch('http://127.0.0.1:1337/api/programs');
+    if (res.ok) {
+      const json = await res.json();
+      programs = json.data;
+    }
+  } catch (error) {
+    console.error("Error fetching programs for paths:", error);
+  }
+
+  return programs.map((program) => {
+    const slug = program.slug || program.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    return { params: { slug }, props: { program, slug } };
+  });
+}
+
+const { program, slug } = Astro.props;
+
+// Parse raw description: strip ** markdown, convert to rich HTML
+const parseDescription = (raw: string) => {
+  if (!raw) return '<p class="text-slate-500 italic">No detailed information available for this program.</p>';
+
+  const lines = raw.split('\n');
+  let html = '';
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    // Convert **text** to a styled section heading
+    const headingMatch = trimmed.match(/^\*\*(.+?)\*\*$/);
+    if (headingMatch) {
+      html += `<div class="flex items-center gap-3 mt-10 mb-4">
+        <div class="w-1 h-6 bg-gradient-to-b from-[#cc1818] to-[#1a2b6e] rounded-full shrink-0"></div>
+        <h3 class="text-lg font-black text-slate-800 tracking-tight">${headingMatch[1]}</h3>
+      </div>`;
+      return;
+    }
+
+    // Numbered list items
+    if (/^\d+\./.test(trimmed)) {
+      const text = trimmed.replace(/^\d+\.\s*/, '');
+      const num = trimmed.match(/^(\d+)/)?.[1];
+      html += `<div class="flex items-start gap-3 py-2 px-4 rounded-xl hover:bg-slate-50 transition-colors">
+        <span class="w-7 h-7 rounded-full bg-[#1a2b6e]/10 text-[#1a2b6e] text-xs font-black flex items-center justify-center shrink-0 mt-0.5">${num}</span>
+        <p class="text-[0.98rem] text-slate-600 leading-relaxed font-normal">${text}</p>
+      </div>`;
+      return;
+    }
+
+    // Main title line (first non-empty bold-ish line)
+    if (trimmed.includes(':') && trimmed.length < 80 && !html) {
+      const [label, ...rest] = trimmed.split(':');
+      html += `<div class="mb-8 pb-6 border-b border-dashed border-slate-200">
+        <p class="text-[#cc1818] font-black text-sm uppercase tracking-[0.2em] mb-1">${label.trim()}</p>
+        ${rest.join(':').trim() ? `<p class="text-xl font-bold text-slate-800">${rest.join(':').trim()}</p>` : ''}
+      </div>`;
+      return;
+    }
+
+    // Regular paragraph
+    html += `<p class="text-[1rem] leading-[1.9] text-slate-600 font-light mb-4">${trimmed}</p>`;
+  });
+
+  return html;
+};
+
+const formattedDescription = parseDescription(program.description);
+
+// Catchy, context-relevant Unsplash images per program
+const programImages: Record<string, string> = {
+  'dst-nidhi-centre-of-excellence-in-advanced-technologies':
+    'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2400&auto=format&fit=crop',
+  'dst-nidhi-prayas':
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2400&auto=format&fit=crop',
+  'dst-nidhi-eir':
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2400&auto=format&fit=crop',
+  'meity-tide-2-0':
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2400&auto=format&fit=crop',
+  'birac-sparsh':
+    'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=2400&auto=format&fit=crop',
+  'birac-bionest-initiatives':
+    'https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=2400&auto=format&fit=crop',
+  'idex-partner-incubator':
+    'https://images.unsplash.com/photo-1487452066049-a710f7296400?q=80&w=2400&auto=format&fit=crop',
+  'startuptn-initiatives':
+    'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2400&auto=format&fit=crop',
+};
+
+const heroImage = programImages[slug] || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2400&auto=format&fit=crop';
+
+// Color accent per program for variety
+const accentColors: Record<string, { from: string; to: string; pill: string }> = {
+  'dst-nidhi-prayas':            { from: 'from-violet-600', to: 'to-indigo-800',  pill: 'bg-violet-500/20 border-violet-400/40 text-violet-100' },
+  'dst-nidhi-eir':               { from: 'from-sky-600',    to: 'to-blue-900',    pill: 'bg-sky-500/20 border-sky-400/40 text-sky-100' },
+  'meity-tide-2-0':              { from: 'from-cyan-600',   to: 'to-teal-900',    pill: 'bg-cyan-500/20 border-cyan-400/40 text-cyan-100' },
+  'birac-sparsh':                { from: 'from-rose-600',   to: 'to-pink-900',    pill: 'bg-rose-500/20 border-rose-400/40 text-rose-100' },
+  'birac-bionest-initiatives':   { from: 'from-emerald-600','to': 'to-green-900', pill: 'bg-emerald-500/20 border-emerald-400/40 text-emerald-100' },
+  'idex-partner-incubator':      { from: 'from-amber-500',  to: 'to-orange-800',  pill: 'bg-amber-500/20 border-amber-400/40 text-amber-100' },
+  'startuptn-initiatives':       { from: 'from-fuchsia-600','to': 'to-purple-900',pill: 'bg-fuchsia-500/20 border-fuchsia-400/40 text-fuchsia-100' },
+};
+
+const accent = accentColors[slug] || { from: 'from-blue-700', to: 'to-[#0f2147]', pill: 'bg-blue-500/20 border-blue-400/40 text-blue-100' };
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>PSG-STEP | {program.title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  </head>
+
+  <body class="bg-[#f3f6fa] text-slate-800 font-['Outfit'] min-h-screen flex flex-col antialiased overflow-x-hidden">
+    <Header />
+
+    <main class="flex-1">
+
+      <!-- ░░ HERO ░░ -->
+      <div class="relative h-[55vh] sm:h-[65vh] min-h-[480px] w-full overflow-hidden">
+        <img
+          src={heroImage}
+          alt={program.title}
+          class="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-[8s] ease-out"
+          style="animation: slowZoom 10s ease-out forwards"
+        />
+        <!-- gradient -->
+        <div class={`absolute inset-0 bg-gradient-to-br ${accent.from} ${accent.to} opacity-80`}></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10"></div>
+        <!-- dot pattern -->
+        <div class="absolute inset-0 opacity-[0.07]" style="background-image: radial-gradient(#ffffff 1.5px, transparent 1.5px); background-size: 28px 28px;"></div>
+
+        <div class="relative h-full flex flex-col justify-end pb-16 max-w-6xl mx-auto px-6 lg:px-12">
+          {program.tagline && (
+            <div class={`inline-flex self-start items-center gap-2.5 px-5 py-2 ${accent.pill} border backdrop-blur-md rounded-full text-xs font-black uppercase tracking-[0.22em] mb-6`}>
+              <span class="w-2 h-2 rounded-full bg-current animate-pulse"></span>
+              {program.tagline}
+            </div>
+          )}
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight drop-shadow-lg max-w-3xl">
+            {program.title}
+          </h1>
+
+          <div class="w-20 h-1 bg-white/60 rounded-full mt-6"></div>
+        </div>
+      </div>
+
+      <!-- ░░ CONTENT ░░ -->
+      <div class="max-w-6xl mx-auto px-6 lg:px-12 py-12 -mt-16 relative z-20">
+        <div class="flex flex-col lg:flex-row gap-8 items-start">
+
+          <!-- ── Description Card (wide) ── -->
+          <div class="w-full lg:flex-1 bg-white rounded-[2rem] shadow-[0_8px_40px_rgba(0,0,0,0.07)] border border-slate-100 overflow-hidden">
+
+            <!-- card top accent bar -->
+            <div class={`h-1.5 w-full bg-gradient-to-r ${accent.from} ${accent.to}`}></div>
+
+            <div class="p-8 md:p-12">
+              <div class="flex items-center gap-3 mb-8">
+                <div class={`w-10 h-10 rounded-xl bg-gradient-to-br ${accent.from} ${accent.to} flex items-center justify-center shadow-md`}>
+                  <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest">Program Details</p>
+                  <h2 class="text-xl font-black text-slate-800">Overview</h2>
+                </div>
+              </div>
+
+              <!-- Parsed Description -->
+              <div class="divide-y divide-slate-50">
+                <div set:html={formattedDescription} />
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Sidebar ── -->
+          <div class="w-full lg:w-[320px] flex flex-col gap-6 shrink-0">
+
+            <!-- Funding Card -->
+            {program.funding && (
+              <div class={`relative overflow-hidden rounded-[1.8rem] bg-gradient-to-br ${accent.from} ${accent.to} p-8 text-white shadow-[0_10px_40px_rgba(0,0,0,0.18)] hover:-translate-y-1 transition-transform duration-300`}>
+                <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                <div class="absolute -left-4 -bottom-4 w-20 h-20 bg-black/10 rounded-full blur-xl"></div>
+
+                <div class="relative z-10">
+                  <div class="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center mb-5 shadow-inner">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </div>
+                  <p class="text-white/60 font-bold text-[10px] uppercase tracking-[0.22em] mb-2">Funding Support</p>
+                  <p class="text-3xl font-black leading-tight">{program.funding}</p>
+                </div>
+              </div>
+            )}
+
+            <!-- Program Highlights Card -->
+            <div class="bg-white rounded-[1.8rem] border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.05)] p-7">
+              <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-5">Program Highlights</h3>
+              <ul class="space-y-3">
+                {[
+                  { icon: '🏛️', label: 'Government Backed Initiative' },
+                  { icon: '🚀', label: 'Early Stage Support' },
+                  { icon: '🔬', label: 'Technology Focused' },
+                  { icon: '📋', label: 'Structured Mentorship' },
+                ].map(item => (
+                  <li class="flex items-center gap-3 text-sm text-slate-600 font-medium">
+                    <span class="text-lg">{item.icon}</span>
+                    {item.label}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <!-- Apply CTA Card -->
+            {program.applyUrl && program.applyUrl !== 'null' && program.applyUrl.trim() !== '' && (
+              <div class="bg-white rounded-[1.8rem] border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.05)] p-7">
+                <h3 class="text-lg font-black text-slate-800 mb-2">Ready to Apply?</h3>
+                <p class="text-sm text-slate-500 mb-6 leading-relaxed">Take the next step in your innovation journey today.</p>
+                <a
+                  href={program.applyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class={`relative group flex items-center justify-center gap-3 w-full px-8 py-4 rounded-xl text-white text-sm font-bold uppercase tracking-widest bg-gradient-to-r ${accent.from} ${accent.to} shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden`}
+                >
+                  <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <span class="relative">Apply Now</span>
+                  <svg class="relative w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                  </svg>
+                </a>
+              </div>
+            )}
+
+            <!-- Contact / Return -->
+            <a href="/" class="flex items-center justify-center gap-2 text-sm text-slate-400 hover:text-[#1a2b6e] font-bold transition-colors group">
+              <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+              </svg>
+              Back to Home
+            </a>
+
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <style>
+      @keyframes slowZoom {
+        0%   { transform: scale(1.05); }
+        100% { transform: scale(1.12); }
+      }
+    </style>
+  </body>
+</html>
